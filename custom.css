@@ -36,3 +36,18 @@
     color: #000; /* Lighter shade when hovered */
     text-decoration: underline;
 }
+
+/* Fix dropdown text inside options */
+.login-card select option {
+    color: black !important;
+    background-color: white !important;
+}
+
+/* Reset forced styles on all states */
+.login-card select::-ms-expand {
+    display: none !important; /* Hide the default dropdown arrow in Edge */
+}
+
+.login-card select:disabled {
+    color: #6c757d !important;
+}
