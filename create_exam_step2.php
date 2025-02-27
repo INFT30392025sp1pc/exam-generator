@@ -40,6 +40,7 @@ $exam_uuid = $_SESSION['exam_uuid']; // Retrieve exam UUID
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,11 +50,12 @@ $exam_uuid = $_SESSION['exam_uuid']; // Retrieve exam UUID
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
 </head>
+
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white">
             <div class="text-center">
-                <img src="assets/img/logo_unisaonline.png" alt="Logo" width="150">
+                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
             </div>
             <div class="card-body text-center">
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
@@ -65,13 +67,9 @@ $exam_uuid = $_SESSION['exam_uuid']; // Retrieve exam UUID
                 <a href="upload_question_file.php" class="btn btn-light w-100 mb-2">Upload</a>
                 <a href="modify_question_list.php" class="btn btn-light w-100 mb-2">Modify</a>
                 <a href="manual_question_creation.php" class="btn btn-light w-100 mb-2">Manual</a>
-
-                <!-- Logout Button -->
-                <form action="logout.php" method="POST">
-                    <button type="submit" class="btn btn-outline-light w-100">Return to login screen</button>
-                </form>
             </div>
         </div>
     </div>
 </body>
+
 </html>

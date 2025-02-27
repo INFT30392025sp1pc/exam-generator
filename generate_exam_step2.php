@@ -64,6 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["student_file"])) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -73,11 +74,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["student_file"])) {
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
 </head>
+
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white">
             <div class="text-center">
-                <img src="assets/img/logo_unisaonline.png" alt="Logo" width="150">
+                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
             </div>
             <div class="card-body text-center">
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
@@ -92,13 +94,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["student_file"])) {
                     </div>
                     <button type="submit" class="btn btn-primary w-100 mb-2">Upload</button>
                 </form>
-
-                <!-- Logout Button -->
-                <form action="logout.php" method="POST">
-                    <button type="submit" class="btn btn-outline-light w-100">Return to login screen</button>
-                </form>
             </div>
         </div>
     </div>
 </body>
+
 </html>

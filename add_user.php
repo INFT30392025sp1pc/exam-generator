@@ -48,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $insert_sql = "INSERT INTO users (username, password, role, subject, email) VALUES (?, ?, ?, ?, ?)";
         $insert_stmt = $conn->prepare($insert_sql);
         $insert_stmt->bind_param("sssss", $new_username, $hashed_password, $new_role, $subject, $email);
-        
+
         if ($insert_stmt->execute()) {
             // Send an email to the new user
             $to = $email;
@@ -69,6 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -78,11 +79,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
 </head>
+
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white">
-        <div class="text-center">
-                <img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220">
+            <div class="text-center">
+                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
             </div>
             <div class="card-body text-center">
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
@@ -115,13 +117,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                     <button type="submit" class="btn btn-light w-100 mb-2">Save</button>
                 </form>
-
-                <!-- Logout Button -->
-                <form action="logout.php" method="POST">
-                    <button type="submit" class="btn btn-outline-light w-100">Return to login screen</button>
-                </form>
             </div>
         </div>
     </div>
 </body>
+
 </html>

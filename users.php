@@ -23,6 +23,7 @@ $role = $user['role'] ?? 'User'; // Default to 'User' if no role is found
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,11 +33,12 @@ $role = $user['role'] ?? 'User'; // Default to 'User' if no role is found
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
 </head>
+
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white"> <!-- Maintain same styling -->
-        <div class="text-center">
-                <img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220">
+            <div class="text-center">
+                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
             </div>
             <div class="card-body text-center">
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
@@ -47,13 +49,9 @@ $role = $user['role'] ?? 'User'; // Default to 'User' if no role is found
 
                 <a href="add_user.php" class="btn btn-light w-100 mb-2">Add User</a>
                 <a href="modify_user.php" class="btn btn-light w-100 mb-2">Modify User</a>
-
-                <!-- Logout Button -->
-                <form action="logout.php" method="POST">
-                    <button type="submit" class="btn btn-outline-light w-100">Return to login screen</button>
-                </form>
             </div>
         </div>
     </div>
 </body>
+
 </html>
