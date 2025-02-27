@@ -58,13 +58,17 @@ if ($file_path && file_exists($file_path)) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Review Question List</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="custom.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
 </head>
+
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white">
@@ -75,12 +79,11 @@ if ($file_path && file_exists($file_path)) {
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
                 <p>Review question list</p>
 
-                <?php if (isset($error)) { ?>
-                    <div class="alert alert-danger"><?php echo $error; ?></div>
-                <?php } else { ?>
-                    <p>📄 List of questions here</p>
-                    <textarea class="form-control mb-3" id="questionList" rows="8"><?php echo htmlspecialchars($file_content); ?></textarea>
-                <?php } ?>
+                <!-- Displays error or success message if one is available -->
+                <?php include('partials/alerts.php'); ?>
+
+                <p>📄 List of questions here</p>
+                <textarea class="form-control mb-3" id="questionList" rows="8"><?php echo htmlspecialchars($file_content); ?></textarea>
 
                 <button type="button" class="btn btn-light w-100 mb-2" id="saveBtn">Save</button>
 
@@ -96,13 +99,16 @@ if ($file_path && file_exists($file_path)) {
         document.getElementById("saveBtn").addEventListener("click", function() {
             let questionList = document.getElementById("questionList").value;
             fetch("save_questions.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "exam_uuid=<?php echo $exam_uuid; ?>&questions=" + encodeURIComponent(questionList)
-            })
-            .then(response => response.text())
-            .then(data => alert(data));
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "exam_uuid=<?php echo $exam_uuid; ?>&questions=" + encodeURIComponent(questionList)
+                })
+                .then(response => response.text())
+                .then(data => alert(data));
         });
     </script>
 </body>
+
 </html>

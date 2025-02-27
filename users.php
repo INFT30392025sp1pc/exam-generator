@@ -19,10 +19,6 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $role = $user['role'] ?? 'User'; // Default to 'User' if no role is found
 
-// Get success message from session (if exists)
-$success_message = isset($_SESSION['success']) ? $_SESSION['success'] : null;
-unset($_SESSION['success']); // Remove message after displaying it
-
 ?>
 
 <!DOCTYPE html>
@@ -33,6 +29,8 @@ unset($_SESSION['success']); // Remove message after displaying it
     <title>Add/Modify Users</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="custom.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
 </head>
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
@@ -44,10 +42,8 @@ unset($_SESSION['success']); // Remove message after displaying it
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
                 <p>Please select what you would like to do:</p>
 
-                <!-- Display Success Message -->
-                <?php if (!empty($success_message)) { ?>
-                    <div class="alert alert-success"><?php echo $success_message; ?></div>
-                <?php } ?>
+                <!-- Displays error or success message if one is available -->
+                <?php include('partials/alerts.php'); ?>
 
                 <a href="add_user.php" class="btn btn-light w-100 mb-2">Add User</a>
                 <a href="modify_user.php" class="btn btn-light w-100 mb-2">Modify User</a>

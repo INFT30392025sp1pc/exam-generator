@@ -42,9 +42,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <h3>Login</h3>
             </div>
 
-            <?php if(isset($error)) { ?>
-                <div class="alert alert-danger"><?php echo $error; ?></div>
-            <?php } ?>
+            <!-- Displays error or success message if one is available -->
+            <?php include('partials/alerts.php'); ?>
 
             <form method="POST" action="">
                 <div class="mb-3">

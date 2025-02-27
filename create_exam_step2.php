@@ -46,6 +46,8 @@ $exam_uuid = $_SESSION['exam_uuid']; // Retrieve exam UUID
     <title>Create Exam Step 2a</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="custom.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
 </head>
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
@@ -56,6 +58,9 @@ $exam_uuid = $_SESSION['exam_uuid']; // Retrieve exam UUID
             <div class="card-body text-center">
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
                 <p>Would you like to upload a question file, modify an existing question list, or manually create a new question list?</p>
+
+                <!-- Displays error or success message if one is available -->
+                <?php include('partials/alerts.php'); ?>
 
                 <a href="upload_question_file.php" class="btn btn-light w-100 mb-2">Upload</a>
                 <a href="modify_question_list.php" class="btn btn-light w-100 mb-2">Modify</a>

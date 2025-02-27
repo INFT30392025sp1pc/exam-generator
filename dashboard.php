@@ -32,6 +32,8 @@ $role = $user['role'] ?? 'User'; // Default to 'User' if no role is found
     <title>Dashboard</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="custom.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
 </head>
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
@@ -43,6 +45,9 @@ $role = $user['role'] ?? 'User'; // Default to 'User' if no role is found
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
                 <p>Please select what you would like to do:</p>
 
+                <!-- Displays error or success message if one is available -->
+                <?php include('partials/alerts.php'); ?>
+
                 <?php if ($role === "Administrator") { ?>
                     <a href="users.php" class="btn btn-light w-100 mb-2">Add/Modify Users</a>
                     <a href="subjects.php" class="btn btn-light w-100 mb-2">Add/Modify Subjects</a>
@@ -52,8 +57,6 @@ $role = $user['role'] ?? 'User'; // Default to 'User' if no role is found
                     <a href="generate_exam_files.php" class="btn btn-light w-100 mb-2">Generate Exam Files</a>
                     <a href="retrieve_past_exams.php" class="btn btn-light w-100 mb-2">Retrieve past exams</a>
                     <a href="change_password.php" class="btn btn-dark w-100 mb-2">Change/update password</a>
-                <?php } else { ?>
-                    <div class="alert alert-warning">You do not have the necessary permissions to access this dashboard.</div>
                 <?php } ?>
 
                 <!-- Logout Button -->

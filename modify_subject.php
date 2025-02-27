@@ -57,6 +57,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Modify Subject</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="custom.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery for handling status update -->
 </head>
 <body>
@@ -68,10 +70,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="card-body text-center">
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
 
-                <!-- Display Error Message -->
-                <?php if (isset($error)) { ?>
-                    <div class="alert alert-danger"><?php echo $error; ?></div>
-                <?php } ?>
+                <!-- Displays error or success message if one is available -->
+                <?php include('partials/alerts.php'); ?>
 
                 <form method="POST" action="">
                     <div class="mb-3">

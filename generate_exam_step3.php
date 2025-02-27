@@ -62,6 +62,8 @@ if ($file_extension === "csv") {
     <title>Generate Exams Step 3</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="custom.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <script>
         function enableEditing() {
             document.getElementById("studentList").contentEditable = true;
@@ -78,6 +80,9 @@ if ($file_extension === "csv") {
             <div class="card-body text-center">
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
                 <p>Review student list</p>
+
+                <!-- Displays error or success message if one is available -->
+                <?php include('partials/alerts.php'); ?>
 
                 <div class="mb-3 border p-2 bg-light text-dark rounded" id="studentList">
                     <ul class="list-unstyled">

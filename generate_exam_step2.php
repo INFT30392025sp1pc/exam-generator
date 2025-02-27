@@ -70,6 +70,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["student_file"])) {
     <title>Generate Exams Step 2</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="custom.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
 </head>
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
@@ -81,9 +83,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["student_file"])) {
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
                 <p>Upload a student file</p>
 
-                <?php if (isset($_SESSION['error'])) { ?>
-                    <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
-                <?php } ?>
+                <!-- Displays error or success message if one is available -->
+                <?php include('partials/alerts.php'); ?>
 
                 <form method="POST" action="" enctype="multipart/form-data">
                     <div class="mb-3">
