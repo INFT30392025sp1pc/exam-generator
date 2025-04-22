@@ -11,7 +11,7 @@ if (!isset($_SESSION['username'])) {
 // Get the logged-in username
 $username = $_SESSION['username'];
 
-$sql = "SELECT role FROM users WHERE username = ?";
+$sql = "SELECT user_role FROM user WHERE user_email = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
@@ -19,7 +19,7 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
 // Assign role variable
-$role = $user['role'] ?? 'User';
+$role = $user['user_role'] ?? 'User';
 
 // Restrict access to only Subject Coordinators
 if ($role !== 'Coordinator') {
@@ -29,10 +29,18 @@ if ($role !== 'Coordinator') {
 }
 
 // Fetch available question files
-$query = "SELECT qf.uuid, qf.file_path, ed.exam_name 
-          FROM question_files qf 
-          JOIN exam_details ed ON qf.exam_uuid = ed.uuid 
-          ORDER BY ed.exam_name ASC";
+$query = "
+SELECT 
+    MIN(q.question_ID) AS question_ID,
+    e.exam_ID,
+    e.exam_year,
+    e.exam_sp,
+    e.subject_code
+FROM question q
+JOIN exam e ON q.exam_ID = e.exam_ID
+GROUP BY e.exam_ID
+ORDER BY e.exam_year DESC, e.exam_sp DESC, e.subject_code ASC
+";
 $stmt = $conn->prepare($query);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -45,6 +53,7 @@ while ($row = $result->fetch_assoc()) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,11 +63,13 @@ while ($row = $result->fetch_assoc()) {
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
 </head>
+
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white">
             <div class="text-center">
-                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
+                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3"
+                        width="220"></a>
             </div>
             <div class="card-body text-center">
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
@@ -69,13 +80,29 @@ while ($row = $result->fetch_assoc()) {
 
                 <form method="POST" action="generate_exam_step2.php">
                     <div class="mb-3">
-                        <select class="form-control" name="question_file_uuid" required>
-                            <option value="" disabled selected>Select question file</option>
+                        <select class="form-control" name="question_ID" required>
+                            <option value="" disabled selected>Select Question Fet</option>
                             <?php foreach ($question_files as $file) { ?>
-                                <option value="<?php echo $file['uuid']; ?>">
-                                    <?php echo htmlspecialchars($file['exam_name']); ?>
+                                <option value="<?php echo $file['question_ID']; ?>">
+                                    <?php echo htmlspecialchars("{$file['subject_code']} - SP{$file['exam_sp']} {$file['exam_year']}"); ?>
                                 </option>
                             <?php } ?>
+                        </select>
+                    </div>
+
+                    <!-- Placeholder for Student File -->
+                    <div class="mb-3">
+                        <select class="form-control" name="student_file_uuid" required>
+                            <option value="" disabled selected>Select Student File</option>
+                            <!-- Options to be populated with PHP later -->
+                        </select>
+                    </div>
+
+                    <!-- Placeholder for Template File -->
+                    <div class="mb-3">
+                        <select class="form-control" name="template_file_uuid" required>
+                            <option value="" disabled selected>Select Template File</option>
+                            <!-- Options to be populated with PHP later -->
                         </select>
                     </div>
 
@@ -85,4 +112,5 @@ while ($row = $result->fetch_assoc()) {
         </div>
     </div>
 </body>
+
 </html>
