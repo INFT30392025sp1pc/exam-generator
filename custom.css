@@ -1,0 +1,53 @@
+.login-card {
+    background-color: #0051a0;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.login-card .form-control {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+}
+
+.login-card .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.login-card .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    border: none;
+    box-shadow: none;
+}
+
+.login-card .btn-light {
+    color: #0051a0;
+    font-weight: bold;
+}
+
+.login-card a {
+    color: #fff; /* Change to your desired color */
+    font-weight: bold;
+    text-decoration: none; /* Optional: removes underline */
+}
+
+.login-card a:hover {
+    color: #000; /* Lighter shade when hovered */
+    text-decoration: underline;
+}
+
+/* Fix dropdown text inside options */
+.login-card select option {
+    color: black !important;
+    background-color: white !important;
+}
+
+/* Reset forced styles on all states */
+.login-card select::-ms-expand {
+    display: none !important; /* Hide the default dropdown arrow in Edge */
+}
+
+.login-card select:disabled {
+    color: #6c757d !important;
+}
