@@ -81,7 +81,7 @@ while ($row = $result->fetch_assoc()) {
                 <form method="POST" action="generate_exam_step2.php">
                     <div class="mb-3">
                         <select class="form-control" name="question_ID" required>
-                            <option value="" disabled selected>Select Question Fet</option>
+                            <option value="" disabled selected>Select Question Set</option>
                             <?php foreach ($question_files as $file) { ?>
                                 <option value="<?php echo $file['question_ID']; ?>">
                                     <?php echo htmlspecialchars("{$file['subject_code']} - SP{$file['exam_sp']} {$file['exam_year']}"); ?>
