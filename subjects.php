@@ -37,6 +37,10 @@ $role = $user['user_role'] ?? 'User';
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white"> <!-- Maintain same styling -->
+            <div class="text-left">
+                <a href="dashboard.php">
+                <u>Back</u>
+            </div>
             <div class="text-center">
                 <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
             </div>
