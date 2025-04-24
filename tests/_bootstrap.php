@@ -1,6 +1,6 @@
 <?php
 // Override db.php for all tests
-copy(__DIR__.'/_data/test_db.php', __DIR__.'/../../db.php');
+copy(__DIR__ . '/Data/test_db.php', __DIR__.'/../../db.php');
 
 // Register cleanup (optional)
 register_shutdown_function(function() {

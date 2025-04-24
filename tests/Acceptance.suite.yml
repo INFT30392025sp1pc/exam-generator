@@ -11,7 +11,9 @@ modules:
             dsn: 'mysql:host=localhost;dbname=exam-generator-testdb'
             user: 'root'
             password: ''
-            dump: 'tests/_data/dump.sql'
+            dump: 'tests/Data/dump.sql'
             populate: true # Clear and load before tests
             cleanup: true  # Clear after tests
+
+
 
