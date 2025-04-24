@@ -68,4 +68,4 @@ CREATE TABLE parameter (
 );
 
 INSERT INTO user
-VALUES (123, '', 'John', 'Smith', 'j-smith@email.com','admin')
+VALUES (123, MD5(''), 'John', 'Smith', 'j-smith@email.com','admin');

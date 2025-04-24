@@ -28,4 +28,8 @@ class AcceptanceTester extends \Codeception\Actor
      */
 
 
+    protected function getScenario()
+    {
+        // TODO: Implement getScenario() method.
+    }
 }

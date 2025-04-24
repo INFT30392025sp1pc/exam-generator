@@ -8,6 +8,7 @@ class loginCest {
     protected $invalidUsername = 'wrong@example.com';
     protected $invalidPassword = 'wrong_password';
 
+    //insert preset values to test database
     public function _before(AcceptanceTester $I)
     {
         // Set up test data in database
