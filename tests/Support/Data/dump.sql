@@ -10,7 +10,7 @@ DROP TABLE IF EXISTS parameter;
 
 CREATE TABLE user (
                       user_ID int PRIMARY KEY,
-                      user_password varchar(12),
+                      user_password varchar(32),
                       first_name varchar(30),
                       last_name varchar(30),
                       user_email varchar(100),
@@ -66,3 +66,6 @@ CREATE TABLE parameter (
                            question_ID int,
                            FOREIGN KEY (question_ID) REFERENCES question(question_ID)
 );
+
+INSERT INTO user
+VALUES (123, '', 'John', 'Smith', 'j-smith@email.com','admin')
