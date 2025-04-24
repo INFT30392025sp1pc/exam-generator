@@ -11,13 +11,13 @@ if (!isset($_SESSION['username'])) {
 // Get the logged-in username and role
 $username = $_SESSION['username'];
 
-$sql = "SELECT role FROM users WHERE username = ?";
+$sql = "SELECT user_role FROM user WHERE user_email = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
-$role = $user['role'] ?? 'User';
+$role = $user['user_role'] ?? 'User';
 
 // Restrict access to only Administrators
 if ($role !== 'Administrator') {
@@ -27,17 +27,17 @@ if ($role !== 'Administrator') {
 }
 
 // Fetch subjects for dropdown
-$subjects_sql = "SELECT uuid, subject_name, is_active FROM subjects ORDER BY subject_name ASC";
+$subjects_sql = "SELECT subject_name, subject_archive FROM subject ORDER BY subject_name ASC";
 $subjects_result = $conn->query($subjects_sql);
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $subject_uuid = $_POST['subject_uuid'];
-    $is_active = isset($_POST['is_active']) ? 1 : 0; // Checkbox toggle
+    $subject_code = $_POST['subject_code'];
+    $subject_archive = isset($_POST['subject_archive']) ? 1  : 0; // Checkbox toggle
 
-    $update_sql = "UPDATE subjects SET is_active = ? WHERE uuid = ?";
+    $update_sql = "UPDATE subject SET subject_archive = ? WHERE subject_code = ?";
     $update_stmt = $conn->prepare($update_sql);
-    $update_stmt->bind_param("is", $is_active, $subject_uuid);
+    $update_stmt->bind_param("is", $subject_archive, $subject_code);
 
     if ($update_stmt->execute()) {
         $_SESSION['success'] = "Subject updated successfully.";
@@ -64,6 +64,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white">
+            <div class="text-left">
+                <a href="subjects.php">
+                <u>Back</u>
+            </div>
             <div class="text-center">
                 <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
             </div>
@@ -75,12 +79,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <form method="POST" action="">
                     <div class="mb-3">
-                        <select class="form-control" name="subject_uuid" id="subjectDropdown" required>
+                        <select class="form-control" name="subject_code" id="subjectDropdown" required>
                             <option value="" disabled selected>Select subject to modify</option>
                             <?php while ($row = $subjects_result->fetch_assoc()) { 
-                                $status_text = $row['is_active'] ? "Active" : "Archived";
+                                $status_text = $row['subject_archive'];
                             ?>
-                                <option value="<?php echo $row['uuid']; ?>" data-status="<?php echo $row['is_active']; ?>">
+                                <option value="<?php echo $row['subject_archive']; ?>" data-status="<?php echo $row['subject_archive']; ?>">
                                     <?php echo htmlspecialchars($row['subject_name']) . " ($status_text)"; ?>
                                 </option>
                             <?php } ?>
@@ -90,7 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <p>What would you like to do?</p>
                     
                     <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" name="is_active" id="toggleSwitch">
+                        <input class="form-check-input" type="checkbox" name="subject_code" id="toggleSwitch">
                         <label class="form-check-label" for="toggleSwitch">Toggle on to enable subject, toggle off to archive</label>
                     </div>
 
@@ -113,3 +117,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </script>
 </body>
 </html>
+

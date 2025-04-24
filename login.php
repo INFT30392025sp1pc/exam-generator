@@ -12,14 +12,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = mysqli_real_escape_string($conn, $_POST['password']);
 
-    $sql = "SELECT * FROM users WHERE username='$username' AND password=MD5('$password')";
+    $sql = "SELECT * FROM user WHERE user_email='$username' AND user_password=MD5('$password')";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
         $_SESSION['username'] = $username;
         header("Location: dashboard.php"); // Redirect after login
+        exit();
     } else {
-        $error = "Invalid Username or Password!";
+        $_SESSION['error'] = "Invalid username or password!";
+        header("Location: login.php");
+        exit();
     }
 }
 ?>

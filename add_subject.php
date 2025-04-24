@@ -11,13 +11,13 @@ if (!isset($_SESSION['username'])) {
 // Get the logged-in username and role
 $username = $_SESSION['username'];
 
-$sql = "SELECT role FROM users WHERE username = ?";
+$sql = "SELECT user_role FROM user WHERE user_email = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
-$role = $user['role'] ?? 'User';
+$role = $user['user_role'] ?? 'User';
 
 // Restrict access to only Administrators
 if ($role !== 'Administrator') {
@@ -28,12 +28,12 @@ if ($role !== 'Administrator') {
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $uuid = bin2hex(random_bytes(16));
     $subject_name = trim($_POST['subject_name']);
     $subject_code = trim($_POST['subject_code']);
+    $subject_archive = 0;
 
     // Check if the subject already exists
-    $check_sql = "SELECT * FROM subjects WHERE subject_code = ?";
+    $check_sql = "SELECT * FROM subject WHERE subject_code = ?";
     $check_stmt = $conn->prepare($check_sql);
     $check_stmt->bind_param("s", $subject_code);
     $check_stmt->execute();
@@ -43,9 +43,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $error = "A subject with this code already exists!";
     } else {
         // Insert the new subject
-        $insert_sql = "INSERT INTO subjects (uuid, subject_name, subject_code) VALUES (?, ?, ?)";
+        $insert_sql = "INSERT INTO subject (subject_name, subject_code, subject_archive) VALUES (?, ?, ?)";
         $insert_stmt = $conn->prepare($insert_sql);
-        $insert_stmt->bind_param("sss", $uuid, $subject_name, $subject_code);
+        $insert_stmt->bind_param("sss", $subject_name, $subject_code, $subject_archive);
 
         if ($insert_stmt->execute()) {
             $_SESSION['success'] = "Subject added successfully.";
@@ -72,6 +72,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white">
+            <div class="text-left">
+                <a href="subjects.php">
+                <u>Back</u>
+            </div>
             <div class="text-center">
                 <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
             </div>
@@ -96,3 +100,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </body>
 </html>
+

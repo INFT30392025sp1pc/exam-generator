@@ -12,7 +12,7 @@ if (!isset($_SESSION['username'])) {
 $username = $_SESSION['username'];
 
 // Fetch user role from the database
-$sql = "SELECT role FROM users WHERE username = ?";
+$sql = "SELECT user_role FROM user WHERE user_email = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
@@ -20,7 +20,7 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
 // Assign role variable
-$role = $user['role'] ?? 'User'; // Default to 'User' if no role is found
+$role = $user['user_role'] ?? 'User'; // Default to 'User' if no role is found
 
 ?>
 
