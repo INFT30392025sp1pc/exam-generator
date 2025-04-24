@@ -4,14 +4,14 @@ include('db.php'); // Include database connection
 
 // Check if the user is logged in
 if (!isset($_SESSION['username'])) {
-    header("Location: index.php");
+    header("Location: login.php");
     exit();
 }
 
 // Get the logged-in username and role
 $username = $_SESSION['username'];
 
-$sql = "SELECT role FROM users WHERE username = ?";
+$sql = "SELECT user_role FROM user WHERE user_email = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
@@ -19,23 +19,35 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
 // Assign role variable
-$role = $user['role'] ?? 'User';
+$role = $user['user_role'] ?? 'User';
 
 // Restrict access to only Subject Coordinators
-if ($role !== 'Coordinator') {
+if ($role != 'Coordinator') {
     $_SESSION['error'] = "Access Denied. Only Subject Coordinators can create exams.";
     header("Location: dashboard.php");
     exit();
 }
 
-// Ensure an exam_uuid exists in session
-if (!isset($_SESSION['exam_uuid'])) {
+// Ensure an exam_name exists in session
+if (!isset($_SESSION['exam_name'])) {
     $_SESSION['error'] = "Exam session not found. Please start again.";
-    header("Location: create_exam.php");
+    header("Location: create_exam_questions.php");
     exit();
 }
 
-$exam_uuid = $_SESSION['exam_uuid']; // Retrieve exam UUID
+//retrieve exam_name
+$exam_name = $_SESSION['exam_name']; // Retrieve exam ID
+
+//retrieve auto-generated exam_ID from db
+$sql = "SELECT exam_ID FROM exam WHERE exam_name = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $exam_name);
+$stmt->execute();
+$result = $stmt->get_result();
+$exam = $result->fetch_assoc();
+$exam_ID = $exam['exam_ID'];
+//Store exam_ID for next page
+$_SESSION['exam_ID'] = $exam_ID;
 ?>
 
 <!DOCTYPE html>
@@ -54,6 +66,10 @@ $exam_uuid = $_SESSION['exam_uuid']; // Retrieve exam UUID
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white">
+            <div class="text-left">
+                <a href="create_exam_questions.php">
+                <u>Back</u>
+            </div>
             <div class="text-center">
                 <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
             </div>
@@ -66,7 +82,9 @@ $exam_uuid = $_SESSION['exam_uuid']; // Retrieve exam UUID
 
                 <a href="upload_question_file.php" class="btn btn-light w-100 mb-2">Upload</a>
                 <a href="modify_question_list.php" class="btn btn-light w-100 mb-2">Modify</a>
-                <a href="manual_question_creation.php" class="btn btn-light w-100 mb-2">Manual</a>
+                
+                <!-- Carries the exam_ID variable over to the next page as it is a secondary key for each question -->
+                <a href="manual_question_creation.php?$exam_ID=<?php echo $exam_ID ?>" class="btn btn-light w-100 mb-2">Manual</a>
             </div>
         </div>
     </div>
