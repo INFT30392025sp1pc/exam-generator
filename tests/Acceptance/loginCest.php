@@ -32,4 +32,15 @@ class loginCest {
         $I->see('Welcome');
     }
 
+    public function testFailedLogin(AcceptanceTester $I)
+    {
+        $I->wantTo('Login with incorrect credentials');
+        $I->amOnPage('/login.php');
+        $I->see('Login');
+        $I->fillField('username', $this->invalidUsername);
+        $I->fillField('password', $this->invalidPassword);
+        $I->click('Login');
+        $I->see('Invalid username or password!');
+    }
+
 }
