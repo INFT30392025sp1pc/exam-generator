@@ -1,0 +1,16 @@
+actor: FunctionalTester
+suite_namespace: Tests\Functional
+modules:
+    # enable helpers as array
+    enabled:
+
+        - Asserts
+        - PhpBrowser:
+                url: 'http://localhost/exam-generator'
+        - Db:
+              dsn: 'mysql:host=localhost;dbname=exam-generator-testdb'
+              user: 'root'
+              password: ''
+              dump: 'tests/Support/Data/dump.sql'
+              populate: true # Clear and load before tests
+              cleanup: true  # Clear after tests
