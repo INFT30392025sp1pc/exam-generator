@@ -7,7 +7,7 @@ function log_activity(
     $entity_type = null,
     $entity_id = null
 ) {
-    // Logs non-sensitive activity as documented at ...
+    // Logs non-sensitive activity as documented at ... [suggest creating kba for UI]
     // Examples for use in the application:
     // log_activity($conn, 'session_start', 'User logged in');
     // log_activity($conn, 'session_end', 'User logged out');
