@@ -1,4 +1,3 @@
-<?php
 // Enable MySQLi error reporting for development
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
@@ -19,5 +18,5 @@ if ($con->connect_error) {
 
 // Connection successful
 echo "Connected successfully";
-?>
+
 
