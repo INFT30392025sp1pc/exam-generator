@@ -11,14 +11,14 @@ if (!isset($_SESSION['username'])) {
 // Get logged-in user's role
 $username = $_SESSION['username'];
 
-$sql = "SELECT role FROM users WHERE username = ?";
+$sql = "SELECT user_role FROM user WHERE user_email = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
-$role = $user['role'] ?? 'User';
+$role = $user['user_role'] ?? 'User';
 
 // Restrict access to only Subject Coordinators
 if ($role !== 'Coordinator') {
@@ -27,38 +27,46 @@ if ($role !== 'Coordinator') {
     exit();
 }
 
-// Handle file upload
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["student_file"])) {
-    $upload_dir = "uploads/";
-    if (!file_exists($upload_dir)) {
-        mkdir($upload_dir, 0777, true); // Ensure the upload directory exists
-    }
+// Validate question_ID from step 1
+if (!isset($_POST['question_ID'])) {
+    $_SESSION['error'] = "No question set selected";
+    header("Location: generate_exam_files.php");
+    exit();
+}
 
-    $file = $_FILES["student_file"];
-    $file_name = basename($file["name"]);
-    $file_tmp = $file["tmp_name"];
-    $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+$question_ID = $_POST['question_ID'];
 
-    // Allowed file types
-    $allowed_extensions = ["csv", "txt"];
+// Get the exam_ID linked to this question set
+$sql = 'SELECT exam_ID FROM question WHERE question_ID = ?';
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $question_ID);
+$stmt->execute();
+$result = $stmt->get_result();
+$exam = $result->fetch_assoc();
 
-    if (!in_array($file_ext, $allowed_extensions)) {
-        $_SESSION['error'] = "Invalid file type. Only CSV and TXT files are allowed.";
-        header("Location: generate_exam_step2.php");
-        exit();
-    }
+$exam_ID = $exam['exam_ID'] ?? null;
 
-    // Move uploaded file
-    $target_file = $upload_dir . uniqid() . "_" . $file_name;
-    if (move_uploaded_file($file_tmp, $target_file)) {
-        $_SESSION['uploaded_file'] = $target_file;
-        header("Location: generate_exam_step3.php"); // Proceed to step 3
-        exit();
-    } else {
-        $_SESSION['error'] = "File upload failed. Please try again.";
-        header("Location: generate_exam_step2.php");
-        exit();
-    }
+if (!$exam_ID) {
+    $_SESSION['error'] = "Exam not found for the selected question set.";
+    header("Location: generate_exam_files.php");
+    exit();
+}
+
+// Fetch students linked via exam_user
+$sql = "
+SELECT s.student_ID, s.first_name, s.last_name, s.student_email
+FROM student s
+JOIN exam_user eu ON s.student_ID = eu.user_ID
+WHERE eu.exam_ID = ?
+";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $exam_ID);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$students = [];
+while ($row = $result->fetch_assoc()) {
+    $students[] = $row;
 }
 ?>
 
@@ -73,27 +81,66 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["student_file"])) {
     <link rel="stylesheet" href="custom.css">
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
+
 </head>
 
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
-        <div class="card p-4 shadow-lg login-card text-white">
-            <div class="text-center">
+        <div class="card p-4 shadow-lg login-card text-white w-100" style="max-width: 500px;">
+            <div class="text-center mb-3">
                 <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
-            </div>
-            <div class="card-body text-center">
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
-                <p>Upload a student file</p>
+                <p>Student List - Update list as required</p>
+            </div>
 
-                <!-- Displays error or success message if one is available -->
-                <?php include('partials/alerts.php'); ?>
+            <?php include('partials/alerts.php'); ?>
 
-                <form method="POST" action="" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <input type="file" class="form-control" name="student_file" accept=".csv,.txt" required>
+            <?php if (count($students) > 0): ?>
+                <form method="POST" action="generate_exam_step3.php">
+                    <input type="hidden" name="exam_ID" value="<?php echo htmlspecialchars($exam_ID); ?>">
+                    <input type="hidden" name="question_ID" value="<?php echo htmlspecialchars($question_ID); ?>">
+
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-bordered table-sm">
+                            <thead class="table-light text-dark">
+                                <tr>
+                                    <th scope="col">First Name</th>
+                                    <th scope="col">Last Name</th>
+                                    <th scope="col">Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($students as $i => $student): ?>
+                                    <tr>
+                                        <input type="hidden" name="students[<?php echo $i; ?>][student_ID]"
+                                               value="<?php echo $student['student_ID']; ?>">
+                                        <td><input type="text" class="form-control form-control-sm text-dark"
+                                                   name="students[<?php echo $i; ?>][first_name]"
+                                                   value="<?php echo htmlspecialchars($student['first_name']); ?>"></td>
+                                        <td><input type="text" class="form-control form-control-sm text-dark"
+                                                   name="students[<?php echo $i; ?>][last_name]"
+                                                   value="<?php echo htmlspecialchars($student['last_name']); ?>"></td>
+                                        <td><input type="email" class="form-control form-control-sm text-dark"
+                                                   name="students[<?php echo $i; ?>][email]"
+                                                   value="<?php echo htmlspecialchars($student['student_email']); ?>"></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 mb-2">Upload</button>
+
+                    <br>
+                    <div class="d-flex justify-content-between">
+                        <a href="generate_exam_files.php" class="btn btn-secondary">Previous Step</a>
+                        <button type="submit" class="btn btn-primary">Next Step</button>
+                    </div>
                 </form>
+            <?php else: ?>
+                <div class="alert alert-warning text-start">No students found for this exam.</div>
+            <?php endif; ?>
+
+            <div class="text-center mt-3">
+                <a href="dashboard.php" class="btn btn-danger w-100">Return to Dashboard</a>
             </div>
         </div>
     </div>

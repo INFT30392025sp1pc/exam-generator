@@ -1,3 +1,56 @@
+<?php
+session_start();
+include('db.php'); // Include database connection
+
+// Check if the user is logged in
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
+
+// Get the logged-in username
+$username = $_SESSION['username'];
+
+// Fetch user role from the database
+$sql = "SELECT user_role FROM user WHERE user_email = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+$role = $user['user_role'] ?? 'User';
+
+// Allow only Coordinators
+if ($role !== 'Coordinator') {
+    $_SESSION['error'] = "Access Denied. Only Subject Coordinators can generate exam files.";
+    header("Location: dashboard.php");
+    exit();
+}
+
+// Fetch questions grouped by exam
+$query = "
+SELECT 
+    MIN(q.question_ID) AS question_ID,
+    e.exam_ID,
+    e.exam_year,
+    e.exam_sp,
+    e.subject_code
+FROM question q
+JOIN exam e ON q.exam_ID = e.exam_ID
+GROUP BY e.exam_ID
+ORDER BY e.exam_year DESC, e.exam_sp DESC, e.subject_code ASC
+";
+$stmt = $conn->prepare($query);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$question_files = [];
+while ($row = $result->fetch_assoc()) {
+    $question_files[] = $row;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,7 +69,7 @@
         <div class="card p-4 shadow-lg login-card text-white">
             <div class="text-left">
                 <a href="dashboard.php">
-                <u>Back</u>
+                    <u>Back</u>
             </div>
             <div class="text-center">
                 <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3"
@@ -38,22 +91,6 @@
                                     <?php echo htmlspecialchars("{$file['subject_code']} - SP{$file['exam_sp']} {$file['exam_year']}"); ?>
                                 </option>
                             <?php } ?>
-                        </select>
-                    </div>
-
-                    <!-- Placeholder for Student File -->
-                    <div class="mb-3">
-                        <select class="form-control" name="student_file_uuid" required>
-                            <option value="" disabled selected>Select Student File</option>
-                            <!-- Options to be populated with PHP later -->
-                        </select>
-                    </div>
-
-                    <!-- Placeholder for Template File -->
-                    <div class="mb-3">
-                        <select class="form-control" name="template_file_uuid" required>
-                            <option value="" disabled selected>Select Template File</option>
-                            <!-- Options to be populated with PHP later -->
                         </select>
                     </div>
 
