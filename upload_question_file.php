@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 include('db.php'); // Include database connection
 
@@ -11,67 +12,59 @@ if (!isset($_SESSION['username'])) {
 // Get the logged-in username and role
 $username = $_SESSION['username'];
 
-$sql = "SELECT role, username FROM users WHERE username = ?";
+$sql = "SELECT user_role FROM user WHERE user_email = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
+$role = $user['user_role'] ?? 'User';
 
-// Assign role variable
-$role = $user['role'] ?? 'User';
-$user_name = $user['username'];
-
-// Restrict access to only Subject Coordinators
+// Restrict access to only Coordinators
 if ($role !== 'Coordinator') {
-    $_SESSION['error'] = "Access Denied. Only Subject Coordinators can upload question files.";
-    header("Location: dashboard.php");
+    $_SESSION['error'] = "Access Denied. Only Coordinators can add questions.";
+    header("Location: subjects.php");
     exit();
 }
 
-// Ensure an exam_uuid exists in session
-if (!isset($_SESSION['exam_uuid'])) {
-    $_SESSION['error'] = "Exam session not found. Please start again.";
+// Ensure an exam_ID exists in session
+if (!isset($_SESSION['exam_ID'])) {
+    $_SESSION['error'] = "Exam ID not found. Please start again.";
     header("Location: create_exam_questions.php");
     exit();
 }
 
-$exam_uuid = $_SESSION['exam_uuid']; // Retrieve exam UUID
+// Create exam_ID variable from the session exam_ID
+$exam_ID = $_SESSION['exam_ID'];
 
-// Handle file upload
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["question_file"])) {
-    $target_dir = "uploads/";
-    $file_name = basename($_FILES["question_file"]["name"]);
-    $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-    $allowed_types = ["pdf", "docx", "txt"];
+// Handle the csv upload
+if(isset($_POST['upload'])) {   // If the upload button is set (i.e. has been clicked)
 
-    // Validate file type
-    if (!in_array($file_ext, $allowed_types)) {
-        $error = "Invalid file type. Only PDF, DOCX, and TXT files are allowed.";
-    } else {
-        // Generate unique file name
-        $unique_file_name = $exam_uuid . "_" . time() . "." . $file_ext;
-        $target_file = $target_dir . $unique_file_name;
+    $filename = $_FILES["file"]["tmp_name"];  // Create filename variable (i.e. file uploaded)
+ 
+    if($_FILES["file"]["size"] > 0) {   // If the file (named "file" in form) exists, n
 
-        if (move_uploaded_file($_FILES["question_file"]["tmp_name"], $target_file)) {
-            // Insert file record into database
-            $file_uuid = bin2hex(random_bytes(16));
-            $insert_sql = "INSERT INTO question_files (uuid, exam_uuid, file_path, uploaded_by) VALUES (?, ?, ?, ?)";
+        $file = fopen($filename, "r");  // Create opened file variable
+
+        while (($row = fgetcsv($file)) !== FALSE) {  // Basically a loop through the csv, the 100 specifies the maximum length of the csv
+
+            $insert_sql = 'INSERT INTO question (exam_ID, contents, time_created) VALUES (?, ?, NOW())'; // SQL Statement
+            $contents = $row[0];
             $insert_stmt = $conn->prepare($insert_sql);
-            $insert_stmt->bind_param("ssss", $file_uuid, $exam_uuid, $target_file, $user_name);
-
+            $insert_stmt->bind_param('ss', $exam_ID, $contents);
+            
             if ($insert_stmt->execute()) {
-                $_SESSION['success'] = "File uploaded successfully.";
-                header("Location: create_exam_step3.php"); // Redirect to next step
-                exit();
+                $_SESSION['success'] = "Questions added successfully.";
             } else {
-                $error = "Error saving file details to the database.";
+                $error = "Error adding questions.";
             }
-        } else {
-            $error = "Error uploading file.";
         }
+
+        fclose($file);
     }
+
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -90,8 +83,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["question_file"])) {
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white">
+            <div class="text-left">
+                <a href="create_exam_step2.php">
+                <u>Back</u>
+            </div>
             <div class="text-center">
-                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
+                <a href="create_exam_step2.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
             </div>
             <div class="card-body text-center">
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
@@ -101,15 +98,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["question_file"])) {
                 <?php include('partials/alerts.php'); ?>
 
                 <form method="POST" action="" enctype="multipart/form-data">
-                    <input type="file" name="question_file" class="form-control mb-3" required>
-                    <button type="submit" class="btn btn-light w-100 mb-2">Upload</button>
+                    <input type="file" name="file" class="form-control mb-3" required>
+                    <button type="submit" name="upload" class="btn btn-light w-100 mb-2">Upload</button>
                 </form>
 
                 <p>Or drag and drop file here</p>
 
                 <!-- Drag and Drop Upload Box -->
                 <div class="border p-3 mb-3 text-center" id="drop-area">
-                    <input type="file" id="fileInput" name="question_file" class="d-none">
+                    <input type="file" id="fileInput" name="file" class="d-none">
                     <label for="fileInput" class="btn btn-outline-light w-100">Add file</label>
                 </div>
 
