@@ -6,8 +6,19 @@ paths:
     data: tests/Support/Data
     support: tests/Support
     envs: tests/_envs
-    bootstrap: _bootstrap.php
 actor_suffix: Tester
 extensions:
     enabled:
         - Codeception\Extension\RunFailed
+
+bootstrap: _bootstrap.php
+
+modules:
+    enabled:
+        - Db:
+              dsn: 'mysql:host=localhost;dbname=test_db'
+              user: 'root'
+              password: ''
+              dump: 'tests/Support/Data/dump.sql'
+              populate: true
+              cleanup: true

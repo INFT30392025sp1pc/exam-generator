@@ -1,10 +1,13 @@
 <?php
-// Override db.php for all tests
-copy(__DIR__ . '/Support/Data/test_db.php', __DIR__.'/../db.php');
 
-// Register cleanup (optional)
-register_shutdown_function(function() {
-    if (file_exists(__DIR__.'/../../db.php.backup')) {
-        copy(__DIR__.'/../../db.php.backup', __DIR__.'/../../db.php');
-    }
-});
+//Set a static state only true during test
+class TestState { public static $isTestMode = true; }
+
+// In bootstrap.php or _before() hook:
+$_COOKIE['TEST_MODE'] = 'true';  // Works for HTTP requests
+// OR
+$_SERVER['HTTP_X_TEST_MODE'] = 'true';  // Custom header
+
+
+?>
+

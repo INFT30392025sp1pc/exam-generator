@@ -20,4 +20,5 @@ return array(
     'e3b2795a8a512b6083af088fb53afe6c' => $vendorDir . '/codeception/codeception/functions.php',
     '37a3dc5111fe8f707ab4c132ef1dbc62' => $vendorDir . '/guzzlehttp/guzzle/src/functions_include.php',
     '2a3c2110e8e0295330dc3d11a4cbc4cb' => $vendorDir . '/php-webdriver/webdriver/lib/Exception/TimeoutException.php',
+    'a4a119a56e50fbb293281d9a48007e0e' => $vendorDir . '/symfony/polyfill-php80/bootstrap.php',
 );

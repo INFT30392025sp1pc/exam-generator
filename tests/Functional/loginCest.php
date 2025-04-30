@@ -12,25 +12,30 @@ final class loginCest
     public function _before(FunctionalTester $I): void
     {
         // Code here will be executed before each test.
+        $I->setHeader('X_TEST_MODE', 'true');
     }
 
-    public function trySuccessfulLogin(FunctionalTester $I): void
+    public function trySuccessfullLogin01(FunctionalTester $I): void
     {
         // Write your tests here. All `public` methods will be executed as tests.
-        $I->amOnPage('/login.php');
+        $I->amOnPage('exam-generator/login.php');
         $I->see('Login');
-        $I->fillField('username', 'j-smith@email.com');
-        $I->fillField('password', md5(''));
+        $I->fillField('username', 'test@email.com');
+        $I->fillField('password', '123');
         $I->click('Login');
-        $I->seeCurrentUrlEquals('/exam-generator/login.php');
-
+        $I->see('Welcome');
+        $I->amOnPage('/dashboard.php');
     }
 
-    public function tryForgetPassword(FunctionalTester $I): void
+    public function trySuccessfullLogin02(FunctionalTester $I): void
     {
-        $I->amOnPage('/login.php');
-        $I->see('Forgotten password');
-        $I->click('Forgotten password');
-        $I->see('404 Not Found');
+        // Write your tests here. All `public` methods will be executed as tests.
+        $I->amOnPage('exam-generator/login.php');
+        $I->see('Login');
+        $I->fillField('username', 'j_smith@gmail.com');
+        $I->fillField('password', 'abc');
+        $I->click('Login');
+        $I->see('Welcome');
+        $I->amOnPage('/dashboard.php');
     }
 }

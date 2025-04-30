@@ -1,19 +1,28 @@
+# Codeception Acceptance Test Suite Configuration
+#
+# Perform tests in a browser by either emulating one using PhpBrowser, or in a real browser using WebDriver.
+# If you need both WebDriver and PhpBrowser tests, create a separate suite for each.
+
 actor: AcceptanceTester
-suite_namespace: Tests\Acceptance
 modules:
-    # enable helpers as array
     enabled:
+#        - Db:
+#                dsn: 'mysql:host=localhost;dbname=test_db'
+#                user: 'root'
+#                password: ''
+#                dump: 'tests/Support/Data/dump.sql'
+#                populate: true
+#                cleanup: true
         - PhpBrowser:
-              url: 'http://localhost/exam-generator'
+            url: http://localhost/exam-generator
 
 
-        - Db:
-            dsn: 'mysql:host=localhost;dbname=exam-generator-testdb'
-            user: 'root'
-            password: ''
-            dump: 'tests/Support/Data/dump.sql'
-            populate: true # Clear and load before tests
-            cleanup: true  # Clear after tests
+#bootstrap: /../_bootstrap.php
 
 
 
+# Add Codeception\Step\Retry trait to AcceptanceTester to enable retries
+step_decorators:
+    - Codeception\Step\ConditionalAssertion
+    - Codeception\Step\TryTo
+    - Codeception\Step\Retry

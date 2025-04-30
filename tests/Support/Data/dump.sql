@@ -1,4 +1,5 @@
---Clear existing tables
+CREATE DATABASE IF NOT EXISTS test_db;
+
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS trussimage;
 DROP TABLE IF EXISTS student;
@@ -68,4 +69,6 @@ CREATE TABLE parameter (
 );
 
 INSERT INTO user
-VALUES (123, MD5(''), 'John', 'Smith', 'j-smith@email.com','admin');
+VALUES
+(1, MD5('123'), 'John', 'Smith', 'test@email.com', 'Administrator'),
+(2, MD5('abc'), 'John', 'Smith', 'j_smith@gmail.com', 'Coordinator');
