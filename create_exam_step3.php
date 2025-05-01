@@ -11,7 +11,7 @@ if (!isset($_SESSION['username'])) {
 // Get the logged-in username and role
 $username = $_SESSION['username'];
 
-$sql = "SELECT role FROM users WHERE username = ?";
+$sql = "SELECT user_role FROM user WHERE user_email = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
@@ -19,7 +19,7 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
 // Assign role variable
-$role = $user['role'] ?? 'User';
+$role = $user['user_role'] ?? 'User';
 
 // Restrict access to only Subject Coordinators
 if ($role !== 'Coordinator') {
@@ -29,31 +29,21 @@ if ($role !== 'Coordinator') {
 }
 
 // Ensure an exam_uuid exists in session
-if (!isset($_SESSION['exam_uuid'])) {
+if (!isset($_SESSION['exam_ID'])) {
     $_SESSION['error'] = "Exam session not found. Please start again.";
     header("Location: create_exam.php");
     exit();
 }
 
-$exam_uuid = $_SESSION['exam_uuid']; // Retrieve exam UUID
+// Gain the current exam_ID so that only the correct questions are selected
+$exam_ID = $_SESSION['exam_ID'];
 
-// Fetch the uploaded question file details
-$query = "SELECT file_path FROM question_files WHERE exam_uuid = ? ORDER BY uuid DESC LIMIT 1";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("s", $exam_uuid);
-$stmt->execute();
-$result = $stmt->get_result();
-$file_data = $result->fetch_assoc();
-
-// Check if file exists
-$file_path = $file_data['file_path'] ?? null;
-$file_content = "";
-
-if ($file_path && file_exists($file_path)) {
-    $file_content = file_get_contents($file_path);
-} else {
-    $error = "No uploaded question file found.";
-}
+// Handle the question selection
+$select_stmt = "SELECT contents FROM question WHERE exam_ID = ?";
+$select_stmt = $conn->prepare($select_stmt);
+$select_stmt -> bind_param("s", $exam_ID);
+$select_stmt -> execute();
+$select_result = $select_stmt->get_result(); 
 ?>
 
 <!DOCTYPE html>
@@ -72,6 +62,10 @@ if ($file_path && file_exists($file_path)) {
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white">
+            <div class="text-left">
+                <a href="create_exam_step2.php">
+                <u>Back</u>
+            </div>
             <div class="text-center">
                 <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
             </div>
@@ -83,13 +77,21 @@ if ($file_path && file_exists($file_path)) {
                 <?php include('partials/alerts.php'); ?>
 
                 <p>📄 List of questions here</p>
-                <textarea class="form-control mb-3" id="questionList" rows="8"><?php echo htmlspecialchars($file_content); ?></textarea>
+                <!-- The below php uses the result from the earlier sql query and loops through the data collecting only the "contents" or actual question -->
+                <textarea class="form-control mb-3" id="questionList" rows="8"><?php 
+                        if ($select_result->num_rows >0) {
+                            while($row = $select_result->fetch_assoc()) {
+                                echo $row["contents"]."\r\n";
+                            }
+                        }
+                    ?>
+                </textarea>
 
                 <button type="button" class="btn btn-light w-100 mb-2" id="saveBtn">Save</button>
             </div>
         </div>
     </div>
-
+                        
     <script>
         document.getElementById("saveBtn").addEventListener("click", function() {
             let questionList = document.getElementById("questionList").value;
@@ -98,7 +100,7 @@ if ($file_path && file_exists($file_path)) {
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded"
                     },
-                    body: "exam_uuid=<?php echo $exam_uuid; ?>&questions=" + encodeURIComponent(questionList)
+                    body: "exam_ID=<?php echo $exam_ID; ?>&questions=" + encodeURIComponent(questionList)
                 })
                 .then(response => response.text())
                 .then(data => alert(data));
