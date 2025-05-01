@@ -42,11 +42,11 @@ if(isset($_POST['upload'])) {   // If the upload button is set (i.e. has been cl
 
     $filename = $_FILES["file"]["tmp_name"];  // Create filename variable (i.e. file uploaded)
  
-    if($_FILES["file"]["size"] > 0) {   // If the file (named "file" in form) exists, n
+    if($_FILES["file"]["size"] > 0) {   // If the file (named "file" in form) exists
 
         $file = fopen($filename, "r");  // Create opened file variable
 
-        while (($row = fgetcsv($file)) !== FALSE) {  // Basically a loop through the csv, the 100 specifies the maximum length of the csv
+        while (($row = fgetcsv($file)) !== FALSE) {  // Basically a loop through the csv
 
             $insert_sql = 'INSERT INTO question (exam_ID, contents, time_created) VALUES (?, ?, NOW())'; // SQL Statement
             $contents = $row[0];
