@@ -102,12 +102,21 @@ if(isset($_POST['upload'])) {   // If the upload button is set (i.e. has been cl
                     <button type="submit" name="upload" class="btn btn-light w-100 mb-2">Upload</button>
                 </form>
 
-                <p>Or drag and drop file here</p>
+                <body>
+                <div class="upload-container">
+                    <div id="drop-area">
+                        <div class="upload-icon">
 
-                <!-- Drag and Drop Upload Box -->
-                <div class="border p-3 mb-3 text-center" id="drop-area">
-                    <input type="file" id="fileInput" name="file" class="d-none">
-                    <label for="fileInput" class="btn btn-outline-light w-100">Add file</label>
+<!--                            the upload svg icon is copied from Boostrap library-->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="60" height="70" fill="currentColor" class="bi bi-cloud-upload-fill" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 0a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 4.095 0 5.555 0 7.318 0 9.366 1.708 11 3.781 11H7.5V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11h4.188C14.502 11 16 9.57 16 7.773c0-1.636-1.242-2.969-2.834-3.194C12.923 1.999 10.69 0 8 0m-.5 14.5V11h1v3.5a.5.5 0 0 1-1 0"/>
+                            </svg>
+                        </div>
+                        <p class="drop-instructions">Or drag & drop files here</p>
+                        <div class="preview" id="preview"></div>
+                        <button type="button" class="btn btn-light w-100 mb-2" id="upload-btn">Upload Files</button>
+                        <div id="status"></div>
+                    </div>
                 </div>
 
                 <a href="create_exam_step3.php" class="btn btn-light w-100 mb-2">Next</a>
@@ -115,25 +124,8 @@ if(isset($_POST['upload'])) {   // If the upload button is set (i.e. has been cl
         </div>
     </div>
 
-    <script>
-        // Drag and Drop File Upload Handling
-        let dropArea = document.getElementById("drop-area");
-
-        dropArea.addEventListener("dragover", function(event) {
-            event.preventDefault();
-            dropArea.classList.add("border-primary");
-        });
-
-        dropArea.addEventListener("dragleave", function(event) {
-            dropArea.classList.remove("border-primary");
-        });
-
-        dropArea.addEventListener("drop", function(event) {
-            event.preventDefault();
-            dropArea.classList.remove("border-primary");
-            let files = event.dataTransfer.files;
-            document.getElementById("fileInput").files = files;
-        });
+<!--call external js file -->
+    <script src="drag_to_upload.js">
     </script>
 </body>
 
