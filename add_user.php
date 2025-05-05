@@ -11,13 +11,13 @@ if (!isset($_SESSION['username'])) {
 // Get the logged-in username and role
 $username = $_SESSION['username'];
 
-$sql = "SELECT role FROM users WHERE username = ?";
+$sql = "SELECT user_role FROM user WHERE user_email = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
-$role = $user['role'] ?? 'User';
+$role = $user['user_role'] ?? 'User';
 
 // If the user is not an Administrator, redirect with an error
 if ($role !== 'Administrator') {
@@ -28,41 +28,50 @@ if ($role !== 'Administrator') {
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $new_username = $_POST['username'];
-    $hashed_password = md5('test'); // This will need to be randomized / changed later
-    $subject = $_POST['subject'];
-    $new_role = $_POST['role'];
+    $password = $_POST['password'];
+    $first_name = $_POST['first_name'];
+    $last_name = $_POST['last_name'];
+    $role = $_POST['role'];
     $email = $_POST['email'];
 
     // Check if user already exists
-    $check_sql = "SELECT * FROM users WHERE username = ?";
+    $check_sql = "SELECT user_email FROM user WHERE user_email = ?";
     $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("s", $new_username);
+    $check_stmt->bind_param("s", $email);
     $check_stmt->execute();
     $check_result = $check_stmt->get_result();
 
     if ($check_result->num_rows > 0) {
-        $error = "Username already exists!";
+        $_SESSION['error'] = "User email already exists!";
     } else {
         // Insert new user
-        $insert_sql = "INSERT INTO users (username, password, role, subject, email) VALUES (?, ?, ?, ?, ?)";
+        $insert_sql = "INSERT INTO user (user_password, first_name, last_name, user_email, user_role) VALUES (?, ?, ?, ?, ?)";
         $insert_stmt = $conn->prepare($insert_sql);
-        $insert_stmt->bind_param("sssss", $new_username, $hashed_password, $new_role, $subject, $email);
+        $insert_stmt->bind_param("sssss", md5($password), $first_name, $last_name, $email, $role);
 
         if ($insert_stmt->execute()) {
-            // Send an email to the new user
-            $to = $email;
-            $subject = "Set Your Password";
-            $message = "Hello $new_username,\n\nAn account has been created for you.\n\nUsername: $new_username\nTemporary Password: $initial_password\n\nPlease log in and change your password immediately.\n\nBest regards,\nAdmin Team";
-            $headers = "From: UniSA Exam Generator";
-            //mail($to, $subject, $message, $headers); Uncomment this when we are able to send email
-
-            $_SESSION['success'] = "User created successfully. An email has been sent.";
+            $_SESSION['success'] = "User added successfully.";
             header("Location: users.php");
             exit();
         } else {
-            $error = "Error creating user.";
+            $_SESSION['error'] = "Error adding user.";
+            header("Location: users.php");
         }
+
+        // if ($insert_stmt->execute()) {
+        //     // Send an email to the new user
+        //     $to = $email;
+        //     $subject = "Set Your Password";
+        //     $message = "Hello $new_username,\n\nAn account has been created for you.\n\nUsername: $new_username\nTemporary Password: $initial_password\n\nPlease log in and change your password immediately.\n\nBest regards,\nAdmin Team";
+        //     $headers = "From: UniSA Exam Generator";
+        //     //mail($to, $subject, $message, $headers); Uncomment this when we are able to send email
+
+        //     $_SESSION['success'] = "User created successfully. An email has been sent.";
+        //     header("Location: users.php");
+        //     exit();
+        // } else {
+        //     $error = "Error creating user.";
+        // }
     }
 }
 ?>
@@ -83,8 +92,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white">
+            <div class="text-left">
+                <a href="users.php">
+                <u>Back</u>
+            </div>
             <div class="text-center">
-                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
+                <a href="users.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
             </div>
             <div class="card-body text-center">
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
@@ -95,25 +108,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <form method="POST" action="">
                     <div class="mb-3">
-                        <input type="text" class="form-control" name="username" placeholder="Enter username" required>
+                        <input class="form-control" name="email" placeholder="Enter email" required>
                     </div>
                     <div class="mb-3">
-                        <input type="email" class="form-control" name="email" placeholder="Enter email" required>
+                        <input class="form-control" name="first_name" placeholder="Enter First Name" required>
                     </div>
                     <div class="mb-3">
-                        <select class="form-control" name="subject" required>
-                            <option value="" disabled selected>Select Subject</option>
-                            <option value="Math">Math</option>
-                            <option value="Science">Science</option>
-                            <option value="English">English</option>
-                        </select>
+                        <input class="form-control" name="last_name" placeholder="Enter Last Name" required>
                     </div>
                     <div class="mb-3">
                         <select class="form-control" name="role" required>
-                            <option value="" disabled selected>Select Role (Coordinator, Tutor)</option>
+                            <option value="" disabled selected>Select Role (Coordinator, Administrator)</option>
                             <option value="Coordinator">Coordinator</option>
-                            <option value="Tutor">Tutor</option>
+                            <option value="Administrator">Administrator</option>
                         </select>
+                    </div>
+                    <div class="mb-3">
+                        <input class="form-control" name="password" placeholder="Enter password" required>
                     </div>
                     <button type="submit" class="btn btn-light w-100 mb-2">Save</button>
                 </form>
