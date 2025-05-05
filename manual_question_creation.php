@@ -35,14 +35,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
     // Check if the question already exists
-    $check_sql = "SELECT * FROM question WHERE contents = ?";
+    $check_sql = "SELECT * FROM question WHERE contents = ? AND exam_ID = ?";
     $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("s", $contents);
+    $check_stmt->bind_param("ss", $contents, $exam_ID);
     $check_stmt->execute();
     $check_result = $check_stmt->get_result();
 
     if ($check_result->num_rows > 0) {
-        $error = "This question already exists!";
+        $_SESSION['error'] = "This question already exists!";
     } else {
         // Insert the new subject
         $insert_sql = "INSERT INTO question (contents, exam_ID, time_created) VALUES (?, ?, NOW())";
@@ -92,11 +92,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <input type="text" class="form-control" name="contents" placeholder="Add Question Here" required>
                     </div>
                     <button type="submit" class="btn btn-light w-100 mb-2">Add Question</button>
-                    <a href="dashboard.php" class="btn btn-light w-100 mb-2">Finish</a>
+                    <a href="create_exam_step3.php" class="btn btn-light w-100 mb-2">Finish</a>
                 </form>
             </div>
         </div>
     </div>
 </body>
 </html>
+
+
 
