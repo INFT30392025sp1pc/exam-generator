@@ -11,13 +11,13 @@ if (!isset($_SESSION['username'])) {
 // Get the logged-in username and role
 $username = $_SESSION['username'];
 
-$sql = "SELECT role FROM users WHERE username = ?";
+$sql = "SELECT user_role FROM user WHERE user_email = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
-$role = $user['role'] ?? 'User'; // Default to 'User' if no role is found
+$role = $user['user_role'] ?? 'User'; // Default to 'User' if no role is found
 
 ?>
 
@@ -37,6 +37,10 @@ $role = $user['role'] ?? 'User'; // Default to 'User' if no role is found
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white"> <!-- Maintain same styling -->
+            <div class="text-left">
+                <a href="dashboard.php">
+                <u>Back</u>
+            </div>
             <div class="text-center">
                 <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
             </div>
