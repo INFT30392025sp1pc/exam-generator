@@ -28,7 +28,7 @@ if ($role !== 'Coordinator') {
     exit();
 }
 
-// Ensure an exam_uuid exists in session
+// Ensure an exam_ID exists in session
 if (!isset($_SESSION['exam_ID'])) {
     $_SESSION['error'] = "Exam session not found. Please start again.";
     header("Location: create_exam.php");
@@ -44,6 +44,46 @@ $select_stmt = $conn->prepare($select_stmt);
 $select_stmt -> bind_param("s", $exam_ID);
 $select_stmt -> execute();
 $select_result = $select_stmt->get_result(); 
+
+// Handle the for submission 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $delete_sql = "DELETE FROM question WHERE exam_ID = ?";
+    $delete_stmt = $conn->prepare($delete_sql);
+    $delete_stmt->bind_param("s", $exam_ID);
+    $delete_stmt->execute();
+
+    $textarea = $_POST['questionlist'];
+
+    $number_of_questions = count(explode("\n", rtrim($textarea)));
+
+    foreach(explode("\n", rtrim($textarea)) as $modified_question) {
+        $insert_sql = "INSERT INTO question (time_created, contents, exam_ID) VALUES (NOW(), ?, ?)";
+        $insert_stmt = $conn->prepare($insert_sql);
+        $insert_stmt->bind_param("ss", $modified_question, $exam_ID);
+
+        if (++$i === $number_of_questions) {
+            if ($insert_stmt->execute()) {
+                $_SESSION['success'] = "User added successfully.";
+                header("Location: create_exam_step4.php");
+                exit();
+            } else {
+                $_SESSION['error'] = "Error adding user.";
+                header("Location: create_exam_step2.php");
+            }
+        } else
+            $insert_stmt->execute();
+    }
+
+    if ($insert_stmt->execute()) {
+        $_SESSION['success'] = "User added successfully.";
+        header("Location: create_exam_step4.php");
+        exit();
+    } else {
+        $_SESSION['error'] = "Error adding user.";
+        header("Location: create_exam_step2.php");
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -77,35 +117,24 @@ $select_result = $select_stmt->get_result();
                 <?php include('partials/alerts.php'); ?>
 
                 <p>📄 List of questions here</p>
-                <!-- The below php uses the result from the earlier sql query and loops through the data collecting only the "contents" or actual question -->
-                <textarea class="form-control mb-3" id="questionList" rows="8"><?php 
-                        if ($select_result->num_rows >0) {
-                            while($row = $select_result->fetch_assoc()) {
-                                echo $row["contents"]."\r\n";
-                            }
-                        }
-                    ?>
-                </textarea>
+                <form method="POST" action="">
+                    <!-- The below php uses the result from the earlier sql query and loops through the data collecting only the "contents" or actual question -->
+                    <div class=mb-3>
+                        <textarea class="form-control" name="questionlist" rows="8" wrap="off"><?php 
+                                if ($select_result->num_rows >0) {
+                                    while($row = $select_result->fetch_assoc()) {
+                                        echo $row["contents"]."\n";
+                                    }
+                                }
+                            ?>
+                        </textarea>
+                    </div>
 
-                <button type="button" class="btn btn-light w-100 mb-2" id="saveBtn">Save</button>
+                    <button type="submit" class="btn btn-light w-100 mb-2">Save</button>
+                </form>
             </div>
         </div>
-    </div>
-                        
-    <script>
-        document.getElementById("saveBtn").addEventListener("click", function() {
-            let questionList = document.getElementById("questionList").value;
-            fetch("save_questions.php", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
-                    body: "exam_ID=<?php echo $exam_ID; ?>&questions=" + encodeURIComponent(questionList)
-                })
-                .then(response => response.text())
-                .then(data => alert(data));
-        });
-    </script>
+    </div>             
 </body>
 
 </html>
