@@ -40,6 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,15 +51,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery for handling status update -->
 </head>
+
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white">
             <div class="text-left">
                 <a href="dashboard.php">
-                <u>Back</u>
+                    <u>Back</u>
             </div>
             <div class="text-center">
-                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
+                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3"
+                        width="220"></a>
             </div>
             <div class="card-body text-center">
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
@@ -66,18 +69,86 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <!-- Displays error or success message if one is available -->
                 <?php include('partials/alerts.php'); ?>
 
-                <p>Please enter new password to reset:</p>
+                <p>Please enter and confirm your new password:</p>
 
-                <form method="POST" action="">
+                <form method="POST" action="" onsubmit="return validateForm()">
                     <div class="mb-3">
-                        <input type="text" class="form-control" name="new_password" placeholder="Enter new Password for user" required>
+                        <input type="password" class="form-control" id="new_password" name="new_password"
+                            placeholder="Enter new password" required>
+                        <small id="passwordStrength" class="form-text text-white mt-1"></small>
                     </div>
-
+                    <div class="mb-3">
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                            placeholder="Confirm new password" required>
+                        <small id="matchStatus" class="form-text text-white mt-1"></small>
+                    </div>
                     <button type="submit" class="btn btn-light w-100 mb-2">Save</button>
                 </form>
             </div>
         </div>
     </div>
-</body>
-</html>
 
+    <script>
+        function checkStrength(password) {
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[\W]/.test(password)) strength++;
+
+            const output = document.getElementById("passwordStrength");
+            if (strength <= 2) {
+                output.textContent = "Weak password";
+                output.style.color = "red";
+            } else if (strength === 3) {
+                output.textContent = "Moderate password";
+                output.style.color = "orange";
+            } else {
+                output.textContent = "Strong password";
+                output.style.color = "lightgreen";
+            }
+        }
+
+        function checkMatch() {
+            const pass = document.getElementById("new_password").value;
+            const confirm = document.getElementById("confirm_password").value;
+            const matchStatus = document.getElementById("matchStatus");
+
+            if (pass && confirm) {
+                if (pass === confirm) {
+                    matchStatus.textContent = "Passwords match";
+                    matchStatus.style.color = "lightgreen";
+                } else {
+                    matchStatus.textContent = "Passwords do not match";
+                    matchStatus.style.color = "red";
+                }
+            } else {
+                matchStatus.textContent = "";
+            }
+        }
+
+        function validateForm() {
+            const pass = document.getElementById("new_password").value;
+            const confirm = document.getElementById("confirm_password").value;
+
+            if (pass !== confirm) {
+                alert("Passwords do not match.");
+                return false;
+            }
+            if (pass.length < 8) {
+                alert("Password must be at least 8 characters.");
+                return false;
+            }
+            return true;
+        }
+
+        document.getElementById("new_password").addEventListener("input", function () {
+            checkStrength(this.value);
+            checkMatch();
+        });
+        document.getElementById("confirm_password").addEventListener("input", checkMatch);
+    </script>
+</body>
+
+</html>
