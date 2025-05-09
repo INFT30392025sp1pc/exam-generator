@@ -27,7 +27,6 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
-$result = $stmt->get_result();
 $roles = [];
 while ($row = $result->fetch_assoc()) {
     $roles[] = $row['role_name'];
@@ -50,7 +49,8 @@ SELECT
     e.exam_ID,
     e.exam_year,
     e.exam_sp,
-    e.subject_code
+    e.subject_code,
+    e.exam_name
 FROM question q
 JOIN exam e ON q.exam_ID = e.exam_ID
 GROUP BY e.exam_ID
@@ -111,7 +111,7 @@ while ($row = $result->fetch_assoc()) {
                             <option value="" disabled selected>Select Question Set</option>
                             <?php foreach ($question_files as $file) { ?>
                                 <option value="<?php echo $file['question_ID']; ?>">
-                                    <?php echo htmlspecialchars("{$file['subject_code']} - SP{$file['exam_sp']} {$file['exam_year']}"); ?>
+                                    <?php echo htmlspecialchars("{$file['subject_code']} - {$file['exam_name']} - SP{$file['exam_sp']} {$file['exam_year']}"); ?>
                                 </option>
                             <?php } ?>
                         </select>
