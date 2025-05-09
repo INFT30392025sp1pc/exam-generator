@@ -1,4 +1,9 @@
 <?php
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 include('db.php'); // Include database connection
 
@@ -46,9 +51,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header("Location: create_exam_step2.php");
         exit();
     } else {
-       $error = "Error creating exam.";
+        $error = "Error creating exam.";
     }
 }
+
+// Fetch subject codes from the subject table - exam.subject_code relies on subject.subject_code
+$subject_stmt = $conn->prepare("SELECT subject_code FROM subject ORDER BY subject_code ASC");
+$subject_stmt->execute();
+$subject_result = $subject_stmt->get_result();
+
+$subjects = [];
+while ($row = $subject_result->fetch_assoc()) {
+    $subjects[] = $row['subject_code'];
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -69,10 +85,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="card p-4 shadow-lg login-card text-white">
             <div class="text-left">
                 <a href="dashboard.php">
-                <u>Back</u>
+                    <u>Back</u>
             </div>
             <div class="text-center">
-                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
+                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3"
+                        width="220"></a>
             </div>
             <div class="card-body text-center">
                 <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
@@ -83,7 +100,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <form method="POST" action="">
                     <div class="mb-3">
-                        <input type="number" class="form-control" name="exam_year" min="2020" max="2100" step="1" value="<?= date('Y'); ?>" required>
+                        <input type="number" class="form-control" name="exam_year" min="2020" max="2100" step="1"
+                            value="<?= date('Y'); ?>" required>
                     </div>
                     <div class="mb-3">
                         <input type="text" class="form-control" name="study_period" placeholder="Study Period" required>
@@ -92,12 +110,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <input type="text" class="form-control" name="exam_name" placeholder="Exam Name" required>
                     </div>
                     <div class="mb-3">
-                        <input type="text" class="form-control" name="subject_code" placeholder="Subject Code" required>
+                        <select name="subject_code" class="form-select form-control" required>
+                            <option value="" disabled selected>Select Subject Code</option>
+                            <?php foreach ($subjects as $code): ?>
+                                <option value="<?= htmlspecialchars($code); ?>"><?= htmlspecialchars($code); ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
 
                     <div class="form-check mb-3">
                         <input type="checkbox" class="form-check-input" name="supplementary" id="supplementaryCheckbox">
-                        <label class="form-check-label" for="supplementaryCheckbox">Is this a supplementary exam?</label>
+                        <label class="form-check-label" for="supplementaryCheckbox">Is this a supplementary
+                            exam?</label>
                     </div>
 
                     <button type="submit" class="btn btn-light w-100 mb-2">Next Step</button>
@@ -108,4 +132,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </body>
 
 </html>
-
