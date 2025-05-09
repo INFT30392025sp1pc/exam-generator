@@ -83,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <form method="POST" action="">
                     <div class="mb-3">
-                        <input type="number" class="form-control" name="exam_year" placeholder="Year" required>
+                        <input type="number" class="form-control" name="exam_year" min="2020" max="2100" step="1" value="<?= date('Y'); ?>" required>
                     </div>
                     <div class="mb-3">
                         <input type="text" class="form-control" name="study_period" placeholder="Study Period" required>
