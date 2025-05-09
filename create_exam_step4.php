@@ -45,26 +45,37 @@ if (!in_array('Coordinator', $roles)) {
 }
 
 // Handle form submission
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $exam_year = $_POST['exam_year'];
-    $exam_sp = $_POST['study_period'];
-    $exam_name = $_POST['exam_name'];
-    $subject_code = $_POST['subject_code'];
-    $is_supplementary = isset($_POST['supplementary']) ? 1 : 0;
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['parameters'])) {
 
-    // Insert exam details into database
-    $insert_sql = "INSERT INTO exam (exam_year, exam_sp, exam_name, subject_code, is_supplementary, time_created) VALUES (?, ?, ?, ?, ?, NOW())";
-    $insert_stmt = $conn->prepare($insert_sql);
-    $insert_stmt->bind_param("sssss", $exam_year, $exam_sp, $exam_name, $subject_code, $is_supplementary);
+    $exam_ID = isset($_POST['exam_ID']) ? (int) $_POST['exam_ID'] : null;
+    $truss_ID = isset($_POST['truss_ID']) ? (int) $_POST['truss_ID'] : null;
+    $parameters = $_POST['parameters']; // array of parameter rows
 
-    if ($insert_stmt->execute()) {
-        $_SESSION['exam_name'] = $exam_name; // Store exam name for next step
-        header("Location: create_exam_step2.php");
-        exit();
-    } else {
-        $error = "Error creating exam.";
+
+    $insert_stmt = $conn->prepare("INSERT INTO parameter (parameter_name, parameter_lower, parameter_upper, exam_ID, truss_ID) VALUES (?, ?, ?, ?, ?)");
+
+    foreach ($parameters as $param) {
+        $name = $param['name'];
+        $lower = $param['lower'];
+        $upper = $param['upper'];
+
+        $insert_stmt->bind_param("siiii", $name, $lower, $upper, $exam_ID, $truss_ID);
+        $insert_stmt->execute();
     }
+
+    $_SESSION['success'] = "Parameters saved successfully.";
+    header("Location: dashboard.php");
+    exit();
 }
+
+$exam_result = $conn->query("SELECT exam_ID, exam_name FROM exam ORDER BY time_created DESC");
+
+$truss_result = $conn->query("SELECT truss_ID, truss_name, exam_ID FROM trussimage ORDER BY truss_name ASC");
+$trusses = [];
+while ($row = $truss_result->fetch_assoc()) {
+    $trusses[$row['exam_ID']][] = $row; // group by exam_ID
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -100,10 +111,79 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </h4>
 
 
-                <p> Parameter page in dev</p>
+                <form method="POST" action="">
+                    <div class="mb-3">
+                        <select name="exam_ID" id="examSelect" class="form-select form-control text-light" required
+                            onchange="filterTrusses(this.value)">
+                            <option value="" disabled selected>Select Exam</option>
+                            <?php while ($exam = $exam_result->fetch_assoc()): ?>
+                                <option value="<?= $exam['exam_ID'] ?>"><?= htmlspecialchars($exam['exam_name']) ?></option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <select name="truss_ID" id="trussSelect" class="form-select form-control text-light mt-3"
+                            required>
+                            <option value="" disabled selected>Select Truss</option>
+                        </select>
+                    </div>
+
+
+                    <table class="table table-bordered table-sm text-white" id="parameterTable">
+                        <thead>
+                            <tr>
+                                <th>Parameter Name</th>
+                                <th>Lower Bound</th>
+                                <th>Upper Bound</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+
+                    <button type="button" class="btn btn-secondary mb-3" onclick="addRow()">Add Parameter</button>
+                    <button type="submit" class="btn btn-light w-100">Finish</button>
+                </form>
+
             </div>
         </div>
     </div>
+
+
+    <script>
+        function addRow() {
+            const table = document.getElementById('parameterTable').querySelector('tbody');
+            const rowCount = table.rows.length;
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+        <td><input type="text" name="parameters[${rowCount}][name]" class="form-control form-control-sm text-dark" required></td>
+        <td><input type="number" name="parameters[${rowCount}][lower]" class="form-control form-control-sm text-dark" required></td>
+        <td><input type="number" name="parameters[${rowCount}][upper]" class="form-control form-control-sm text-dark" required></td>
+        <td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">Remove</button></td>
+    `;
+            table.appendChild(row);
+        }
+    </script>
+    <script>
+        const trussOptions = <?= json_encode($trusses); ?>;
+
+        function filterTrusses(examID) {
+            const select = document.getElementById('trussSelect');
+            select.innerHTML = '<option value="" disabled selected>Select Truss</option>';
+
+            if (trussOptions[examID]) {
+                trussOptions[examID].forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t.truss_ID;
+                    opt.textContent = t.truss_name;
+                    select.appendChild(opt);
+                });
+            }
+        }
+    </script>
+
+
 </body>
 
 </html>
