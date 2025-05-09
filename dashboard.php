@@ -1,4 +1,8 @@
 <?php
+
+require_once 'functions.php';
+enableDebug(true); // Set to false in production
+
 session_start();
 include('db.php'); // Include database connection
 
@@ -12,7 +16,6 @@ if (!isset($_SESSION['username'])) {
 $username = $_SESSION['username'];
 
 // Fetch user role from the database
-//$sql = "SELECT user_role FROM user WHERE user_email = ?";
 $sql = "
 SELECT r.role_name 
 FROM user u
@@ -24,14 +27,11 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
-//$user = $result->fetch_assoc();
 $roles = [];
 while ($row = $result->fetch_assoc()) {
     $roles[] = $row['role_name'];
 }
 
-// Assign role variable
-//$role = $user['user_role'] ?? 'User'; // Default to 'User' if no role is found
 // Set to 'User' if no roles found
 if (empty($roles)) {
     $roles[] = 'User';

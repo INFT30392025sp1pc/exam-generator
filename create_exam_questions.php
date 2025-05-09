@@ -1,8 +1,7 @@
 <?php
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+require_once 'functions.php';
+enableDebug(true); // Set to false in production
 
 session_start();
 include('db.php'); // Include database connection
@@ -16,18 +15,31 @@ if (!isset($_SESSION['username'])) {
 // Get the logged-in username and role
 $username = $_SESSION['username'];
 
-$sql = "SELECT user_role FROM user WHERE user_email = ?";
+$sql = "
+SELECT r.role_name 
+FROM user u
+JOIN user_role_map urm ON u.user_ID = urm.user_ID
+JOIN role r ON urm.role_id = r.role_id
+WHERE u.user_email = ?
+";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
-$user = $result->fetch_assoc();
+$roles = [];
+while ($row = $result->fetch_assoc()) {
+    $roles[] = $row['role_name'];
+}
+if (empty($roles)) {
+    $roles[] = 'User';
+}
 
 // Assign role variable
 $role = $user['user_role'] ?? 'User';
 
 // Restrict access to only Subject Coordinators
-if ($role != 'Coordinator') {
+if (!in_array('Coordinator', $roles)) {
+
     $_SESSION['error'] = "Access Denied. Only Subject Coordinators can create exams.";
     header("Location: dashboard.php");
     exit();
@@ -92,7 +104,14 @@ while ($row = $subject_result->fetch_assoc()) {
                         width="220"></a>
             </div>
             <div class="card-body text-center">
-                <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
+                <h4>
+                    Welcome, you are logged in as
+                    <strong>
+                        <?php echo htmlspecialchars(implode(' & ', $roles)); ?>
+                    </strong>
+                </h4>
+
+
                 <p> Please enter details for the exam to be created:</p>
 
                 <!-- Displays error or success message if one is available -->

@@ -1,4 +1,8 @@
 <?php
+
+require_once 'functions.php';
+enableDebug(true); // Set to false in production
+
 session_start();
 include('db.php'); // Include database connection
 
@@ -11,17 +15,29 @@ if (!isset($_SESSION['username'])) {
 // Get the logged-in username and role
 $username = $_SESSION['username'];
 
-$sql = "SELECT user_role FROM user WHERE user_email = ?";
+$sql = "
+SELECT r.role_name 
+FROM user u
+JOIN user_role_map urm ON u.user_ID = urm.user_ID
+JOIN role r ON urm.role_id = r.role_id
+WHERE u.user_email = ?
+";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
-$user = $result->fetch_assoc();
-$role = $user['user_role'] ?? 'User';
+$roles = [];
+while ($row = $result->fetch_assoc()) {
+    $roles[] = $row['role_name'];
+}
+if (empty($roles)) {
+    $roles[] = 'User';
+}
 
-// Restrict access to only Administrators
-if ($role !== 'Coordinator') {
-    $_SESSION['error'] = "Access Denied. Only Administrators can add subjects.";
+
+// Restrict access to only Coordinators
+if (!in_array('Coordinator', $roles)) {
+    $_SESSION['error'] = "Access Denied. Only Coordinators can add subjects.";
     header("Location: subjects.php");
     exit();
 }
@@ -62,34 +78,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create New Subject</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="custom.css"> 
+    <link rel="stylesheet" href="custom.css">
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
 </head>
+
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white">
             <div class="text-left">
                 <a href="subjects.php">
-                <u>Back</u>
+                    <u>Back</u>
             </div>
             <div class="text-center">
-                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
+                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3"
+                        width="220"></a>
             </div>
             <div class="card-body text-center">
-                <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
+                <h4>
+                    Welcome, you are logged in as
+                    <strong>
+                        <?php echo htmlspecialchars(implode(' & ', $roles)); ?>
+                    </strong>
+                </h4>
+
+
 
                 <!-- Displays error or success message if one is available -->
                 <?php include('partials/alerts.php'); ?>
 
                 <form method="POST" action="">
                     <div class="mb-3">
-                        <input type="text" class="form-control" name="contents" placeholder="Add Question Here" required>
+                        <input type="text" class="form-control" name="contents" placeholder="Add Question Here"
+                            required>
                     </div>
                     <button type="submit" class="btn btn-light w-100 mb-2">Add Question</button>
                     <a href="create_exam_step3.php" class="btn btn-light w-100 mb-2">Finish</a>
@@ -98,7 +125,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
 </body>
+
 </html>
-
-
-

@@ -1,4 +1,8 @@
 <?php
+
+require_once 'functions.php';
+enableDebug(true); // Set to false in production
+
 session_start();
 include('db.php'); // Include database connection
 
@@ -11,16 +15,27 @@ if (!isset($_SESSION['username'])) {
 // Get the logged-in username and role
 $username = $_SESSION['username'];
 
-$sql = "SELECT user_role FROM user WHERE user_email = ?";
+$sql = "
+SELECT r.role_name 
+FROM user u
+JOIN user_role_map urm ON u.user_ID = urm.user_ID
+JOIN role r ON urm.role_id = r.role_id
+WHERE u.user_email = ?
+";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
-$user = $result->fetch_assoc();
-$role = $user['user_role'] ?? 'User';
+$roles = [];
+while ($row = $result->fetch_assoc()) {
+    $roles[] = $row['role_name'];
+}
+if (empty($roles)) {
+    $roles[] = 'User';
+}
 
 // Restrict access to only Administrators
-if ($role !== 'Administrator') {
+if (!in_array('Administrator', $roles)) {
     $_SESSION['error'] = "Access Denied. Only Administrators can modify users.";
     header("Location: users.php");
     exit();
@@ -32,7 +47,7 @@ $user_result = $conn->query($user_sql);
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
+
     // Takes the user_email in the dropdown to define where to update in the db
     $user_email = $_POST['users'];
     $new_role = $_POST['new_role'];
@@ -53,6 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -63,18 +79,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery for handling status update -->
 </head>
+
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white">
             <div class="text-left">
                 <a href="users.php">
-                <u>Back</u>
+                    <u>Back</u>
             </div>
             <div class="text-center">
-                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
+                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3"
+                        width="220"></a>
             </div>
             <div class="card-body text-center">
-                <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
+                <h4>
+                    Welcome, you are logged in as
+                    <strong>
+                        <?php echo htmlspecialchars(implode(' & ', $roles)); ?>
+                    </strong>
+                </h4>
+
+
 
                 <!-- Displays error or success message if one is available -->
                 <?php include('partials/alerts.php'); ?>
@@ -83,10 +108,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="mb-3">
                         <select class="form-control" name="users" id="user_dropdown" required>
                             <option value="" disabled selected>Select user to modify</option>
-                            <?php while ($row = $user_result->fetch_assoc()) { 
+                            <?php while ($row = $user_result->fetch_assoc()) {
                                 $user_text = $row['first_name'] . " " . $row['last_name'] . " (" . $row['user_role'] . ")";
-                            ?>
-                                <option value="<?php echo $row['user_email']; ?>" data-status="<?php echo $row['user_email']; ?>">
+                                ?>
+                                <option value="<?php echo $row['user_email']; ?>"
+                                    data-status="<?php echo $row['user_email']; ?>">
                                     <?php echo htmlspecialchars($row['user_email']) . " - $user_text"; ?>
                                 </option>
                             <?php } ?>
@@ -107,6 +133,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
 </body>
+
 </html>
-
-

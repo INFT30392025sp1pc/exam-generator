@@ -1,4 +1,8 @@
 <?php
+
+require_once 'functions.php';
+enableDebug(true); // Set to false in production
+
 session_start();
 include('db.php');
 

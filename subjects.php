@@ -1,4 +1,8 @@
 <?php
+
+require_once 'functions.php';
+enableDebug(true); // Set to false in production
+
 session_start();
 include('db.php'); // Include database connection
 
@@ -11,13 +15,24 @@ if (!isset($_SESSION['username'])) {
 // Get the logged-in username and role
 $username = $_SESSION['username'];
 
-$sql = "SELECT user_role FROM user WHERE user_email = ?";
+$sql = "
+SELECT r.role_name 
+FROM user u
+JOIN user_role_map urm ON u.user_ID = urm.user_ID
+JOIN role r ON urm.role_id = r.role_id
+WHERE u.user_email = ?
+";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
-$user = $result->fetch_assoc();
-$role = $user['user_role'] ?? 'User';
+$roles = [];
+while ($row = $result->fetch_assoc()) {
+    $roles[] = $row['role_name'];
+}
+if (empty($roles)) {
+    $roles[] = 'User';
+}
 
 ?>
 
@@ -39,13 +54,21 @@ $role = $user['user_role'] ?? 'User';
         <div class="card p-4 shadow-lg login-card text-white"> <!-- Maintain same styling -->
             <div class="text-left">
                 <a href="dashboard.php">
-                <u>Back</u>
+                    <u>Back</u>
             </div>
             <div class="text-center">
-                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
+                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3"
+                        width="220"></a>
             </div>
             <div class="card-body text-center">
-                <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
+                <h4>
+                    Welcome, you are logged in as
+                    <strong>
+                        <?php echo htmlspecialchars(implode(' & ', $roles)); ?>
+                    </strong>
+                </h4>
+
+
                 <p>Please select what you would like to do:</p>
 
                 <!-- Displays error or success message if one is available -->

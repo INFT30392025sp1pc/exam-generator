@@ -1,4 +1,8 @@
 <?php
+
+require_once 'functions.php';
+enableDebug(true); // Set to false in production
+
 session_start();
 include('db.php');
 
@@ -9,16 +13,28 @@ if (!isset($_SESSION['username'])) {
 
 $username = $_SESSION['username'];
 
-$sql = "SELECT role FROM users WHERE username = ?";
+$sql = "
+SELECT r.role_name 
+FROM user u
+JOIN user_role_map urm ON u.user_ID = urm.user_ID
+JOIN role r ON urm.role_id = r.role_id
+WHERE u.user_email = ?
+";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
-$user = $result->fetch_assoc();
+$roles = [];
+while ($row = $result->fetch_assoc()) {
+    $roles[] = $row['role_name'];
+}
+if (empty($roles)) {
+    $roles[] = 'User';
+}
 
 $role = $user['role'] ?? 'User';
 
-if ($role !== 'Coordinator') {
+if (!in_array('Coordinator', $roles)) {
     echo json_encode(["status" => "error", "message" => "Access Denied."]);
     exit();
 }

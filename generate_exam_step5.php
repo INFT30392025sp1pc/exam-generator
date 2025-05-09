@@ -1,4 +1,8 @@
 <?php
+
+require_once 'functions.php';
+enableDebug(true); // Set to false in production
+
 session_start();
 include('db.php'); // Include database connection
 
@@ -11,17 +15,27 @@ if (!isset($_SESSION['username'])) {
 // Get logged-in user's role
 $username = $_SESSION['username'];
 
-$sql = "SELECT role FROM users WHERE username = ?";
+$sql = "
+SELECT r.role_name 
+FROM user u
+JOIN user_role_map urm ON u.user_ID = urm.user_ID
+JOIN role r ON urm.role_id = r.role_id
+WHERE u.user_email = ?
+";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
-$user = $result->fetch_assoc();
-
-$role = $user['role'] ?? 'User';
+$roles = [];
+while ($row = $result->fetch_assoc()) {
+    $roles[] = $row['role_name'];
+}
+if (empty($roles)) {
+    $roles[] = 'User';
+}
 
 // Restrict access to only Subject Coordinators
-if ($role !== 'Coordinator') {
+if (!in_array('Coordinator', $roles)) {
     $_SESSION['error'] = "Access Denied. Only Subject Coordinators can proceed.";
     header("Location: dashboard.php");
     exit();
@@ -77,10 +91,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['export_exam'])) {
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white">
             <div class="text-center">
-                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
+                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3"
+                        width="220"></a>
             </div>
             <div class="card-body text-center">
-                <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
+                <h4>
+                    Welcome, you are logged in as
+                    <strong>
+                        <?php echo htmlspecialchars(implode(' & ', $roles)); ?>
+                    </strong>
+                </h4>
+
+
                 <p>Generate Exam Papers</p>
 
                 <!-- Displays error or success message if one is available -->

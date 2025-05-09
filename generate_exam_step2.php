@@ -1,4 +1,8 @@
 <?php
+
+require_once 'functions.php';
+enableDebug(true); // Set to false in production
+
 session_start();
 include('db.php'); // Include database connection
 
@@ -11,17 +15,28 @@ if (!isset($_SESSION['username'])) {
 // Get logged-in user's role
 $username = $_SESSION['username'];
 
-$sql = "SELECT user_role FROM user WHERE user_email = ?";
+$sql = "
+SELECT r.role_name 
+FROM user u
+JOIN user_role_map urm ON u.user_ID = urm.user_ID
+JOIN role r ON urm.role_id = r.role_id
+WHERE u.user_email = ?
+";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
-$user = $result->fetch_assoc();
+$roles = [];
+while ($row = $result->fetch_assoc()) {
+    $roles[] = $row['role_name'];
+}
+if (empty($roles)) {
+    $roles[] = 'User';
+}
 
-$role = $user['user_role'] ?? 'User';
 
 // Restrict access to only Subject Coordinators
-if ($role !== 'Coordinator') {
+if (!in_array('Coordinator', $roles)) {
     $_SESSION['error'] = "Access Denied. Only Subject Coordinators can proceed.";
     header("Location: dashboard.php");
     exit();
@@ -88,8 +103,16 @@ while ($row = $result->fetch_assoc()) {
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white w-100" style="max-width: 500px;">
             <div class="text-center mb-3">
-                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
-                <h4>Welcome, you are logged in as <strong><?php echo htmlspecialchars($role); ?></strong></h4>
+                <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3"
+                        width="220"></a>
+                <h4>
+                    Welcome, you are logged in as
+                    <strong>
+                        <?php echo htmlspecialchars(implode(' & ', $roles)); ?>
+                    </strong>
+                </h4>
+
+
                 <p>Student List - Update list as required</p>
             </div>
 
@@ -113,16 +136,16 @@ while ($row = $result->fetch_assoc()) {
                                 <?php foreach ($students as $i => $student): ?>
                                     <tr>
                                         <input type="hidden" name="students[<?php echo $i; ?>][student_ID]"
-                                               value="<?php echo $student['student_ID']; ?>">
+                                            value="<?php echo $student['student_ID']; ?>">
                                         <td><input type="text" class="form-control form-control-sm text-dark"
-                                                   name="students[<?php echo $i; ?>][first_name]"
-                                                   value="<?php echo htmlspecialchars($student['first_name']); ?>"></td>
+                                                name="students[<?php echo $i; ?>][first_name]"
+                                                value="<?php echo htmlspecialchars($student['first_name']); ?>"></td>
                                         <td><input type="text" class="form-control form-control-sm text-dark"
-                                                   name="students[<?php echo $i; ?>][last_name]"
-                                                   value="<?php echo htmlspecialchars($student['last_name']); ?>"></td>
+                                                name="students[<?php echo $i; ?>][last_name]"
+                                                value="<?php echo htmlspecialchars($student['last_name']); ?>"></td>
                                         <td><input type="email" class="form-control form-control-sm text-dark"
-                                                   name="students[<?php echo $i; ?>][email]"
-                                                   value="<?php echo htmlspecialchars($student['student_email']); ?>"></td>
+                                                name="students[<?php echo $i; ?>][email]"
+                                                value="<?php echo htmlspecialchars($student['student_email']); ?>"></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

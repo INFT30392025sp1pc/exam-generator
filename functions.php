@@ -52,5 +52,22 @@ function log_activity(
     $stmt->close();
 
     return $result;
+
+
 }
+// Enables or disables PHP error reporting based on the passed flag
+function enableDebug($enabled = false)
+{
+    if ($enabled) {
+        // Show all errors on screen (useful for development)
+        ini_set('display_errors', 1);             // Show runtime errors
+        ini_set('display_startup_errors', 1);     // Show startup sequence errors
+        error_reporting(E_ALL);                   // Report all types of errors
+    } else {
+        // Suppress errors from being shown on screen (recommended for production)
+        ini_set('display_errors', 0);
+        error_reporting(0);
+    }
+}
+
 ?>
