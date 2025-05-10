@@ -10,6 +10,14 @@ require_once('src/autoload.php'); // FPDI Library
 
 use setasign\Fpdi\Fpdi;
 
+$exam_ID = $_GET['exam_ID'] ?? null;
+
+if (!$exam_ID) {
+    $_SESSION['error'] = "No exam selected.";
+    header("Location: generate_exam_files.php");
+    exit();
+}
+
 // Ensure only Coordinators can access
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
@@ -31,10 +39,12 @@ if ($role !== 'Coordinator') {
 }
 
 // Count total pending exams based on number of students
-$count_stmt = $conn->prepare("SELECT COUNT(DISTINCT user_ID) FROM exam_user");
+$count_stmt = $conn->prepare("SELECT COUNT(DISTINCT user_ID) FROM exam_user WHERE exam_ID = ?");
+$count_stmt->bind_param("i", $exam_ID);
 $count_stmt->execute();
 $count_result = $count_stmt->get_result()->fetch_row();
 $pending_count = $count_result[0] ?? 0;
+
 
 // Ensure PDF folder exists
 $pdf_dir = 'generated_pdfs/';
@@ -50,12 +60,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
     array_map('unlink', glob($pdf_dir . '*.pdf'));
 
     // Fetch students linked to exams (include exam_ID!)
-    $sql = "
-        SELECT s.student_ID, s.first_name, s.last_name, s.student_email, eu.exam_ID
-        FROM student s
-        JOIN exam_user eu ON s.student_ID = eu.user_ID
-    ";
-    $result = $conn->query($sql);
+    $stmt3 = $conn->prepare("
+    SELECT s.student_ID, s.first_name, s.last_name, s.student_email, eu.exam_ID
+    FROM student s
+    JOIN exam_user eu ON s.student_ID = eu.user_ID
+    WHERE eu.exam_ID = ?
+");
+    $stmt3->bind_param("i", $exam_ID);
+    $stmt3->execute();
+    $result = $stmt3->get_result();
 
     while ($row = $result->fetch_assoc()) {
         $name = "{$row['first_name']} {$row['last_name']}";
@@ -224,7 +237,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
             });
         }
     </script>
-<?php unset($_SESSION['generated_files']); ?>
+    <?php unset($_SESSION['generated_files']); ?>
 
 </body>
 

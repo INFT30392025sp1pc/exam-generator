@@ -132,7 +132,7 @@ if (isset($_POST['upload']) && isset($_FILES['truss_image'])) {
                     </div>
                     <button type="submit" name="upload" class="btn btn-light w-100 mb-2">Upload Truss</button>
                 </form>
-                <a href="create_exam_step3.php" class="btn btn-light w-100">Next</a>
+                <a href="create_exam_step4.php" class="btn btn-light w-100">Next</a>
 
 
                 <body>
