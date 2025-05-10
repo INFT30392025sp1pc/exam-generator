@@ -39,9 +39,10 @@ if (!$exam_ID || !$question_ID || empty($students)) {
     exit();
 }
 
-//Update student records
-// Check if the students array is not empty
-foreach ($_POST['students'] as $student) {
+// Track submitted student IDs
+$submittedStudentIDs = [];
+
+foreach ($students as $student) {
     $first = trim($student['first_name']);
     $last = trim($student['last_name']);
     $email = trim($student['student_email']);
@@ -68,8 +69,10 @@ foreach ($_POST['students'] as $student) {
         $student_ID = $insert->insert_id;
     }
 
-    // 3. Link student to exam
-    $exam_ID = (int) $_POST['exam_ID'];
+    // Track this student
+    $submittedStudentIDs[] = $student_ID;
+
+    // 3. Link student to exam if not already linked
     $check_link = $conn->prepare("SELECT * FROM exam_user WHERE exam_ID = ? AND user_ID = ?");
     $check_link->bind_param("ii", $exam_ID, $student_ID);
     $check_link->execute();
@@ -82,6 +85,28 @@ foreach ($_POST['students'] as $student) {
     }
 }
 
+// Remove students no longer in the form
+$currentStmt = $conn->prepare("SELECT user_ID FROM exam_user WHERE exam_ID = ?");
+$currentStmt->bind_param("i", $exam_ID);
+$currentStmt->execute();
+$currentResult = $currentStmt->get_result();
+
+$currentStudentIDs = [];
+while ($row = $currentResult->fetch_assoc()) {
+    $currentStudentIDs[] = (int)$row['user_ID'];
+}
+
+$studentsToRemove = array_diff($currentStudentIDs, $submittedStudentIDs);
+
+if (!empty($studentsToRemove)) {
+    $placeholders = implode(',', array_fill(0, count($studentsToRemove), '?'));
+    $types = str_repeat('i', count($studentsToRemove));
+
+    $sql = "DELETE FROM exam_user WHERE exam_ID = ? AND user_ID IN ($placeholders)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i' . $types, $exam_ID, ...$studentsToRemove);
+    $stmt->execute();
+}
 
 // Redirect to step 4
 $_SESSION['success'] = "Student records updated successfully.";
