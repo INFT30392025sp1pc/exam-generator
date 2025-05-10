@@ -109,7 +109,6 @@ if (!empty($studentsToRemove)) {
 }
 
 // Redirect to step 4
-$_SESSION['success'] = "Student records updated successfully.";
 header("Location: generate_exam_step4.php?exam_ID=$exam_ID&question_ID=$question_ID");
 exit();
 ?>

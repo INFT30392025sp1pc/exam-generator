@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
         }
 
         $pdf->Output('F', $filename);
-
+        $_SESSION['success'] = "Exam papers generated successfully";
         $generated_files[] = $filename;
     }
 
@@ -159,11 +159,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
         <div class="card p-4 shadow-lg login-card text-white text-center" style="max-width: 600px;">
             <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
             <h5>Generate Exam Papers</h5>
-            <p class="text-white-50">(<?php echo $pending_count; ?> Pending Exams)</p>
 
-            <form method="POST" action="">
-                <button type="submit" name="generate" class="btn btn-light my-3">Generate (Create PDFs)</button>
-            </form>
+            <?php include('partials/alerts.php'); ?>
+            <?php unset($_SESSION['success']); ?>
+
+            <?php if (empty($_SESSION['generated_files'])): ?>
+                <p class="text-white-50">(<?php echo $pending_count; ?> Pending Exams)</p>
+                <form method="POST" action="">
+                    <button type="submit" name="generate" class="btn btn-light my-3">Generate (Create PDFs)</button>
+                </form>
+            <?php endif; ?>
+
 
             <?php if (!empty($generated_files)): ?>
                 <h6 class="mt-3">Generated Files</h6>
@@ -218,6 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
             });
         }
     </script>
+<?php unset($_SESSION['generated_files']); ?>
 
 </body>
 
