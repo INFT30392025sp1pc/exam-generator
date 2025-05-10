@@ -31,7 +31,7 @@ if ($role !== 'Coordinator') {
 }
 
 // Count total pending exams based on number of students
-$count_stmt = $conn->prepare("SELECT COUNT(*) FROM exam_user");
+$count_stmt = $conn->prepare("SELECT COUNT(DISTINCT user_ID) FROM exam_user");
 $count_stmt->execute();
 $count_result = $count_stmt->get_result()->fetch_row();
 $pending_count = $count_result[0] ?? 0;
@@ -59,7 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
 
     while ($row = $result->fetch_assoc()) {
         $name = "{$row['first_name']} {$row['last_name']}";
-        $filename = $pdf_dir . "Exam_Student_{$row['student_ID']}.pdf";
+        $sanitizedFirst = preg_replace('/[^a-zA-Z0-9]/', '', $row['first_name']);
+        $sanitizedLast = preg_replace('/[^a-zA-Z0-9]/', '', $row['last_name']);
+        $filename = $pdf_dir . "Exam_{$sanitizedFirst}_{$sanitizedLast}_{$row['student_ID']}.pdf";
+
 
         $pdf = new Fpdi();
         $pageCount = $pdf->setSourceFile('templates/truss_template_clean.pdf');
@@ -74,6 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
         // Create new page for exam content
         $pdf->AddPage();
         $pdf->SetFont('Arial', '', 12);
+        $pdf->Cell(0, 10, "Student Name: {$row['first_name']} {$row['last_name']}", 0, 1);
+        $pdf->Cell(0, 10, "Student Email: {$row['student_email']}", 0, 1);
+        $pdf->Ln(5);
 
         // Fetch questions for this student's exam
         $stmt2 = $conn->prepare("SELECT contents FROM question WHERE exam_ID = ?");
@@ -94,6 +100,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
             $pdf->Ln(5); // Space between questions
 
             $questionNumber++;
+        }
+
+        // Fetch parameters for the exam
+        $param_stmt = $conn->prepare("SELECT parameter_name, parameter_lower, parameter_upper FROM parameter WHERE exam_ID = ?");
+        $param_stmt->bind_param("i", $row['exam_ID']);
+        $param_stmt->execute();
+        $param_result = $param_stmt->get_result();
+
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(0, 10, "Parameter Table", 0, 1);
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(60, 10, 'Parameter', 1);
+        $pdf->Cell(60, 10, 'Value', 1);
+        $pdf->Ln();
+
+        $pdf->SetFont('Arial', '', 10);
+        while ($param = $param_result->fetch_assoc()) {
+            $value = rand($param['parameter_lower'], $param['parameter_upper']);
+            $pdf->Cell(60, 10, $param['parameter_name'], 1);
+            $pdf->Cell(60, 10, $value, 1);
+            $pdf->Ln();
+        }
+        $pdf->Ln(10);
+
+        // Add the truss image
+        $img_stmt = $conn->prepare("SELECT truss_url FROM trussimage WHERE exam_ID = ? LIMIT 1");
+        $img_stmt->bind_param("i", $row['exam_ID']);
+        $img_stmt->execute();
+        $img_result = $img_stmt->get_result();
+        $img_row = $img_result->fetch_assoc();
+
+        if ($img_row && file_exists($img_row['truss_url'])) {
+            $pdf->Image($img_row['truss_url'], null, null, 150); // width 150mm
+            $pdf->Ln(10);
         }
 
         $pdf->Output('F', $filename);
@@ -117,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg login-card text-white text-center" style="max-width: 600px;">
-            <img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220">
+            <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
             <h5>Generate Exam Papers</h5>
             <p class="text-white-50">(<?php echo $pending_count; ?> Pending Exams)</p>
 
@@ -140,20 +180,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
                                 <tr>
                                     <td><?php echo basename($file); ?></td>
                                     <td>
-                                        <a href="<?php echo $file; ?>" class="btn btn-sm btn-success" download>Download</a>
+                                        <a href="<?php echo $file; ?>" class="btn btn-sm btn-success download-btn" download>
+                                            Download
+                                        </a>
+
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
+                <button class="btn btn-warning w-100 mt-3" onclick="downloadAll()">Download All PDFs</button>
             <?php else: ?>
-                <button class="btn btn-primary mt-3" disabled>Export ZIP (Generate first)</button>
             <?php endif; ?>
 
             <a href="dashboard.php" class="btn btn-danger w-100 mt-4">Return to Dashboard</a>
         </div>
     </div>
+    <script>
+        document.querySelectorAll('.download-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-secondary');
+                btn.textContent = 'Downloaded';
+            });
+        });
+
+        function downloadAll() {
+            const links = document.querySelectorAll('.download-btn');
+            links.forEach(link => {
+                const a = document.createElement('a');
+                a.href = link.href;
+                a.download = '';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            });
+        }
+    </script>
+
 </body>
 
 </html>

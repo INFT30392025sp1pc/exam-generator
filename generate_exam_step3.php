@@ -39,21 +39,49 @@ if (!$exam_ID || !$question_ID || empty($students)) {
     exit();
 }
 
-// Update student records
-foreach ($students as $student) {
-    $student_ID = $student['student_ID'];
-    $first = $student['first_name'];
-    $last = $student['last_name'];
-    $email = $student['email'];
+//Update student records
+// Check if the students array is not empty
+foreach ($_POST['students'] as $student) {
+    $first = trim($student['first_name']);
+    $last = trim($student['last_name']);
+    $email = trim($student['student_email']);
 
-    $update = $conn->prepare("
-        UPDATE student 
-        SET first_name = ?, last_name = ?, student_email = ?
-        WHERE student_ID = ?
-    ");
-    $update->bind_param("sssi", $first, $last, $email, $student_ID);
-    $update->execute();
+    // 1. Check if student already exists
+    $stmt = $conn->prepare("SELECT student_ID FROM student WHERE student_email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $student_ID = $row['student_ID'];
+
+        // Optional: update name
+        $update = $conn->prepare("UPDATE student SET first_name = ?, last_name = ? WHERE student_ID = ?");
+        $update->bind_param("ssi", $first, $last, $student_ID);
+        $update->execute();
+    } else {
+        // 2. Insert new student
+        $insert = $conn->prepare("INSERT INTO student (first_name, last_name, student_email) VALUES (?, ?, ?)");
+        $insert->bind_param("sss", $first, $last, $email);
+        $insert->execute();
+        $student_ID = $insert->insert_id;
+    }
+
+    // 3. Link student to exam
+    $exam_ID = (int) $_POST['exam_ID'];
+    $check_link = $conn->prepare("SELECT * FROM exam_user WHERE exam_ID = ? AND user_ID = ?");
+    $check_link->bind_param("ii", $exam_ID, $student_ID);
+    $check_link->execute();
+    $check_result = $check_link->get_result();
+
+    if ($check_result->num_rows === 0) {
+        $link = $conn->prepare("INSERT INTO exam_user (exam_ID, user_ID) VALUES (?, ?)");
+        $link->bind_param("ii", $exam_ID, $student_ID);
+        $link->execute();
+    }
 }
+
 
 // Redirect to step 4
 $_SESSION['success'] = "Student records updated successfully.";

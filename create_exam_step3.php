@@ -81,8 +81,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if (++$i === $number_of_questions) {
             if ($insert_stmt->execute()) {
-                $_SESSION['success'] = "Question added successfully.";
-                header("Location: create_exam_step4.php");
+                $_SESSION['success'] = "Question(s) added successfully.";
+                header("Location: upload_truss.php");
                 exit();
             } else {
                 $_SESSION['error'] = "Error adding question.";
@@ -93,8 +93,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if ($insert_stmt->execute()) {
-        $_SESSION['success'] = "Question added successfully.";
-        header("Location: create_exam_step4.php");
+        $_SESSION['success'] = "Question(s) added successfully.";
+        header("Location: upload_truss.php");
         exit();
     } else {
         $_SESSION['error'] = "Error adding question.";

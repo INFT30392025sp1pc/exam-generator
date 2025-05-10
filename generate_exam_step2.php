@@ -124,42 +124,99 @@ while ($row = $result->fetch_assoc()) {
                     <input type="hidden" name="question_ID" value="<?php echo htmlspecialchars($question_ID); ?>">
 
                     <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                        <table class="table table-bordered table-sm">
+                        <table class="table table-bordered table-sm" id="studentTable">
                             <thead class="table-light text-dark">
                                 <tr>
-                                    <th scope="col">First Name</th>
-                                    <th scope="col">Last Name</th>
-                                    <th scope="col">Email</th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Email</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($students as $i => $student): ?>
-                                    <tr>
-                                        <input type="hidden" name="students[<?php echo $i; ?>][student_ID]"
-                                            value="<?php echo $student['student_ID']; ?>">
-                                        <td><input type="text" class="form-control form-control-sm text-dark"
-                                                name="students[<?php echo $i; ?>][first_name]"
-                                                value="<?php echo htmlspecialchars($student['first_name']); ?>"></td>
-                                        <td><input type="text" class="form-control form-control-sm text-dark"
-                                                name="students[<?php echo $i; ?>][last_name]"
-                                                value="<?php echo htmlspecialchars($student['last_name']); ?>"></td>
-                                        <td><input type="email" class="form-control form-control-sm text-dark"
-                                                name="students[<?php echo $i; ?>][email]"
-                                                value="<?php echo htmlspecialchars($student['student_email']); ?>"></td>
-                                    </tr>
-                                <?php endforeach; ?>
+                                <?php if (count($students) > 0): ?>
+                                    <?php foreach ($students as $i => $student): ?>
+                                        <tr>
+                                            <input type="hidden" name="students[<?php echo $i; ?>][student_ID]"
+                                                value="<?php echo $student['student_ID']; ?>">
+                                            <td><input type="text" class="form-control form-control-sm text-dark"
+                                                    name="students[<?php echo $i; ?>][first_name]"
+                                                    value="<?php echo htmlspecialchars($student['first_name']); ?>" required></td>
+                                            <td><input type="text" class="form-control form-control-sm text-dark"
+                                                    name="students[<?php echo $i; ?>][last_name]"
+                                                    value="<?php echo htmlspecialchars($student['last_name']); ?>" required></td>
+                                            <td><input type="email" class="form-control form-control-sm text-dark"
+                                                    name="students[<?php echo $i; ?>][student_email]"
+                                                    value="<?php echo htmlspecialchars($student['student_email']); ?>" required>
+                                            </td>
+                                            <td><button type="button" class="btn btn-sm btn-danger"
+                                                    onclick="this.closest('tr').remove()">Remove</button></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
 
-                    <br>
+                    <button type="button" class="btn btn-light w-100 mb-3" onclick="addStudentRow()">Add Student</button>
+
                     <div class="d-flex justify-content-between">
                         <a href="generate_exam_files.php" class="btn btn-secondary">Previous Step</a>
                         <button type="submit" class="btn btn-primary">Next Step</button>
                     </div>
                 </form>
+
             <?php else: ?>
-                <div class="alert alert-warning text-start">No students found for this exam.</div>
+                <div class="alert alert-warning text-start">No students found for this exam. You can manually enter students
+                    below.</div>
+                <form method="POST" action="generate_exam_step3.php">
+                    <input type="hidden" name="exam_ID" value="<?php echo htmlspecialchars($exam_ID); ?>">
+                    <input type="hidden" name="question_ID" value="<?php echo htmlspecialchars($question_ID); ?>">
+
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-bordered table-sm" id="studentTable">
+                            <thead class="table-light text-dark">
+                                <tr>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Email</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (count($students) > 0): ?>
+                                    <?php foreach ($students as $i => $student): ?>
+                                        <tr>
+                                            <input type="hidden" name="students[<?php echo $i; ?>][student_ID]"
+                                                value="<?php echo $student['student_ID']; ?>">
+                                            <td><input type="text" class="form-control form-control-sm text-dark"
+                                                    name="students[<?php echo $i; ?>][first_name]"
+                                                    value="<?php echo htmlspecialchars($student['first_name']); ?>" required></td>
+                                            <td><input type="text" class="form-control form-control-sm text-dark"
+                                                    name="students[<?php echo $i; ?>][last_name]"
+                                                    value="<?php echo htmlspecialchars($student['last_name']); ?>" required></td>
+                                            <td><input type="email" class="form-control form-control-sm text-dark"
+                                                    name="students[<?php echo $i; ?>][student_email]"
+                                                    value="<?php echo htmlspecialchars($student['student_email']); ?>" required>
+                                            </td>
+                                            <td><button type="button" class="btn btn-sm btn-danger"
+                                                    onclick="this.closest('tr').remove()">Remove</button></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <button type="button" class="btn btn-light w-100 mb-3" onclick="addStudentRow()">Add Student</button>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="generate_exam_files.php" class="btn btn-secondary">Previous Step</a>
+                        <button type="submit" class="btn btn-primary">Next Step</button>
+                    </div>
+                </form>
+
+
             <?php endif; ?>
 
             <div class="text-center mt-3">
@@ -167,6 +224,32 @@ while ($row = $result->fetch_assoc()) {
             </div>
         </div>
     </div>
+    <script>
+        let studentCount = <?php echo count($students); ?>;
+
+        function addStudentRow() {
+            const table = document.getElementById('studentTable').querySelector('tbody');
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+        <td><input type="text" class="form-control form-control-sm text-dark" name="students[${studentCount}][first_name]" required></td>
+        <td><input type="text" class="form-control form-control-sm text-dark" name="students[${studentCount}][last_name]" required></td>
+        <td><input type="email" class="form-control form-control-sm text-dark" name="students[${studentCount}][student_email]" required></td>
+        <td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">Remove</button></td>
+    `;
+            table.appendChild(row);
+            studentCount++;
+        }
+
+        document.querySelector('form').addEventListener('submit', function (e) {
+            const rows = document.querySelectorAll('#studentTable tbody tr');
+            if (rows.length === 0) {
+                e.preventDefault();
+                alert('Please add at least one student before continuing.');
+            }
+        });
+    </script>
+
 </body>
 
 </html>
