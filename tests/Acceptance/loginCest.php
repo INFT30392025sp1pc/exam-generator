@@ -21,16 +21,30 @@ final class loginCest
 
     }
 
-    public function testSuccessfulLogin1(AcceptanceTester $I): void
+    public function testSuccessfulLoginAsAdmin(AcceptanceTester $I): void
     {
 
         // Write your tests here. All `public` methods will be executed as tests.
         $I->amOnPage('/login.php');
         $I->see('Login');
-        $I->fillField('username', 'test@email.com');
+        $I->fillField('username', 'test.admin@gmail.com');
         $I->fillField('password', '123');
         $I->click('Login');
         $I->see('Welcome');
+        $I->amOnPage('/dashboard.php');
+    }
+
+    public function testSuccessfulLoginAsCoordinator(AcceptanceTester $I): void
+    {
+
+        // Write your tests here. All `public` methods will be executed as tests.
+        $I->amOnPage('/login.php');
+        $I->see('Login');
+        $I->fillField('username', 'test.coordinator@gmail.com');
+        $I->fillField('password', '123');
+        $I->click('Login');
+        $I->see('Welcome');
+        $I->see('Coordinator');
         $I->amOnPage('/dashboard.php');
     }
 

@@ -47,7 +47,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (2,md5('123'),'John','March','test@email.com','Administrator'),(9,'098f6bcd4621d373cade4e832627b4f6','test','name','test.test@gmail.com','Coordinator'),(10,'098f6bcd4621d373cade4e832627b4f6','Alice','Smith','alice.smith@gmail.com','Coordinator'),(11,'098f6bcd4621d373cade4e832627b4f6','Alice','Super','alice.super@gmail.com','Coordinator'),(12,'098f6bcd4621d373cade4e832627b4f6','John','Smith','John.Smith@gmail.com','Coordinator');
+INSERT INTO `user` VALUES (2,md5('123'),'John','March','test.admin@gmail.com','Administrator'),(9,md5('123'),'test','name','test.coordinator@gmail.com','Coordinator'),(10,'098f6bcd4621d373cade4e832627b4f6','Alice','Smith','alice.smith@gmail.com','Coordinator'),(11,'098f6bcd4621d373cade4e832627b4f6','Alice','Super','alice.super@gmail.com','Coordinator'),(12,'098f6bcd4621d373cade4e832627b4f6','John','Smith','John.Smith@gmail.com','Coordinator');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 ;
