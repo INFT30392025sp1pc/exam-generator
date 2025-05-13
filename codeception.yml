@@ -19,6 +19,19 @@ modules:
               dsn: 'mysql:host=localhost;dbname=test_db'
               user: 'root'
               password: ''
-              dump: 'tests/Support/Data/dump.sql'
+              dump:
+                  - 'tests/Support/Data/dbmaster_activity_log.sql'
+                  - 'tests/Support/Data/dbmaster_exam.sql'
+                  - 'tests/Support/Data/dbmaster_exam_user.sql'
+                  - 'tests/Support/Data/dbmaster_parameter.sql'
+                  - 'tests/Support/Data/dbmaster_question.sql'
+                  - 'tests/Support/Data/dbmaster_role.sql'
+                  - 'tests/Support/Data/dbmaster_student.sql'
+                  - 'tests/Support/Data/dbmaster_subject.sql'
+                  - 'tests/Support/Data/dbmaster_trussimage.sql'
+                  - 'tests/Support/Data/dbmaster_user.sql'
+                  - 'tests/Support/Data/dbmaster_user_role_map.sql'
+
+
               populate: true
               cleanup: true
