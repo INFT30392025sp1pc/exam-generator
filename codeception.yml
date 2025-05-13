@@ -7,6 +7,10 @@ paths:
     support: tests/Support
     envs: tests/_envs
 actor_suffix: Tester
+suites:
+  acceptance:
+    actor: AcceptanceTester
+    path: /Acceptance
 extensions:
     enabled:
         - Codeception\Extension\RunFailed
