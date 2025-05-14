@@ -129,7 +129,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <form method="POST" action="">
                     <div class="mb-3">
-                        <input class="form-control" name="email" placeholder="Enter email" required>
+                        <input class="form-control" name="email" placeholder="Enter email" type="email" required>
                     </div>
                     <div class="mb-3">
                         <input class="form-control" name="first_name" placeholder="Enter First Name" required>
