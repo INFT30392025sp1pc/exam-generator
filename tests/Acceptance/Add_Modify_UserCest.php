@@ -38,6 +38,22 @@ final class Add_Modify_UserCest
         $I->amOnPage('/users.php');
     }
 
+    public function tryToTestAddUserWithInvalidDetails(AcceptanceTester $I): void
+    {
+        // Write your tests here. All `public` methods will be executed as tests.
+        $I->click('Add User');
+        $I->amOnPage('/add_user.php');
+        $I->see("Please complete the fields below to add a new user:");
+        $I->fillField('email', 'Not Email');
+        $I->fillField('first_name', 'John');
+        $I->fillField('last_name', 'Smith');
+        $I->selectOption('role', 'Administrator');
+        $I->fillField('password', '123');
+        $I->click('Save');
+        $I->amOnPage('/add_user.php');
+    }
+
+
     public function tryToTestModifyUser(AcceptanceTester $I): void
     {
         // Write your tests here. All `public` methods will be executed as tests.
