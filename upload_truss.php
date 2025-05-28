@@ -154,7 +154,7 @@ if (isset($_POST['upload']) && isset($_FILES['truss_image'])) {
 </div>
 
 <!-- Call external js file -->
-<script src="drag_to_upload.js"></script>
+<script src="drag_to_upload_images.js"></script>
 </body>
 
 </html>

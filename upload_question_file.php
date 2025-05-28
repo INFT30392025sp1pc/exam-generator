@@ -119,37 +119,37 @@ if (isset($_POST['upload'])) {   // If the upload button is set (i.e. has been c
                 <!-- Displays error or success message if one is available -->
                 <?php include('partials/alerts.php'); ?>
 
-                <form method="POST" action="" enctype="multipart/form-data">
-                    <input type="file" name="file" class="form-control mb-3" required>
-                    <button type="submit" name="upload" class="btn btn-light w-100 mb-2">Upload</button>
-                </form>
+                <form method="POST" action="" enctype="multipart/form-data" id="upload-form">
+                    <!-- Hidden file input that will be triggered by the drop area -->
+                    <input type="file" name="file" id="file-input" class="d-none" accept=".csv" required>
+                    <label for="file-input" class="btn btn-light mb-3">Select CSV File</label>
 
-                <body>
-                    <div class="upload-container">
+                    <!-- Drag and drop area -->
+                    <div class="upload-container mt-4">
                         <div id="drop-area">
                             <div class="upload-icon">
-
-                                <!--                            the upload svg icon is copied from Boostrap library-->
                                 <svg xmlns="http://www.w3.org/2000/svg" width="60" height="70" fill="currentColor"
-                                    class="bi bi-cloud-upload-fill" viewBox="0 0 16 16">
+                                     class="bi bi-cloud-upload-fill" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
-                                        d="M8 0a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 4.095 0 5.555 0 7.318 0 9.366 1.708 11 3.781 11H7.5V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11h4.188C14.502 11 16 9.57 16 7.773c0-1.636-1.242-2.969-2.834-3.194C12.923 1.999 10.69 0 8 0m-.5 14.5V11h1v3.5a.5.5 0 0 1-1 0" />
+                                          d="M8 0a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 4.095 0 5.555 0 7.318 0 9.366 1.708 11 3.781 11H7.5V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11h4.188C14.502 11 16 9.57 16 7.773c0-1.636-1.242-2.969-2.834-3.194C12.923 1.999 10.69 0 8 0m-.5 14.5V11h1v3.5a.5.5 0 0 1-1 0" />
                                 </svg>
                             </div>
-                            <p class="drop-instructions">Or drag & drop files here</p>
-                            <div class="preview" id="preview"></div>
-                            <button type="button" class="btn btn-light w-100 mb-2" id="upload-btn">Upload Files</button>
-                            <div id="status"></div>
+                            <p class="drop-instructions">Or Drag & drop your CSV file here</p>
+                            <div class="preview mt-3" id="preview"></div>
                         </div>
                     </div>
 
-                    <a href="create_exam_step3.php" class="btn btn-light w-100 mb-2">Next</a>
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="submit" name="upload" class="btn btn-light" id="upload-btn">Upload Questions</button>
+                        <a href="create_exam_step3.php" class="btn btn-light">Next</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
     <!--call external js file -->
-    <script src="drag_to_upload.js">
+    <script src="drag_to_upload_csv_questions.js">
     </script>
 </body>
 
