@@ -98,70 +98,63 @@ if (isset($_POST['upload']) && isset($_FILES['truss_image'])) {
 </head>
 
 <body>
-    <div class="container d-flex justify-content-center align-items-center vh-100">
-        <div class="card p-4 shadow-lg login-card text-white">
-            <div class="text-left">
-                <a href="create_exam_step3.php">
-                    <u>Back</u>
-            </div>
-            <div class="text-center">
-                <a href="create_exam_step2.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3"
-                        width="220"></a>
-            </div>
-            <div class="card-body text-center">
-                <h4>
-                    Welcome, you are logged in as
-                    <strong>
-                        <?php echo htmlspecialchars(implode(' & ', $roles)); ?>
-                    </strong>
-                </h4>
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card p-4 shadow-lg login-card text-white">
+        <div class="text-left">
+            <a href="create_exam_step3.php">
+                <u>Back</u>
+            </a>
+        </div>
+        <div class="text-center">
+            <a href="create_exam_step2.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3" width="220"></a>
+        </div>
+        <div class="card-body text-center">
+            <h4>
+                Welcome, you are logged in as
+                <strong>
+                    <?php echo htmlspecialchars(implode(' & ', $roles)); ?>
+                </strong>
+            </h4>
 
+            <p>Upload a truss file</p>
 
-                <p>Upload a truss file</p>
+            <!-- Displays error or success message if one is available -->
+            <?php include('partials/alerts.php'); ?>
 
-                <!-- Displays error or success message if one is available -->
-                <?php include('partials/alerts.php'); ?>
+            <form method="POST" action="" enctype="multipart/form-data" class="upload-form">
+                <div class="mb-3">
+                    <input type="text" class="form-control" name="truss_name" id="truss_name"
+                           placeholder="Enter truss name" required>
+                </div>
 
-                <form method="POST" action="" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <input type="text" class="form-control" name="truss_name" placeholder="Enter truss name"
-                            required>
-                    </div>
-                    <div class="mb-3">
-                        <input type="file" name="truss_image" accept="image/*" class="form-control" required>
-                    </div>
-                    <button type="submit" name="upload" class="btn btn-light w-100 mb-2">Upload Truss</button>
-                </form>
-                <a href="create_exam_step4.php" class="btn btn-light w-100">Next</a>
-
-
-                <body>
-                    <div class="upload-container">
-                        <div id="drop-area">
-                            <div class="upload-icon">
-
-                                <!--the upload svg icon is copied from Boostrap library-->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="60" height="70" fill="currentColor"
-                                    class="bi bi-cloud-upload-fill" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                        d="M8 0a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 4.095 0 5.555 0 7.318 0 9.366 1.708 11 3.781 11H7.5V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11h4.188C14.502 11 16 9.57 16 7.773c0-1.636-1.242-2.969-2.834-3.194C12.923 1.999 10.69 0 8 0m-.5 14.5V11h1v3.5a.5.5 0 0 1-1 0" />
-                                </svg>
-                            </div>
-                            <p class="drop-instructions">Or drag & drop files here</p>
-                            <div class="preview" id="preview"></div>
-                            <button type="button" class="btn btn-light w-100 mb-2" id="upload-btn">Upload Files</button>
-                            <div id="status"></div>
+                <div class="upload-container">
+                        <input type="file" name="truss_image" id="file-input" accept="image/*" class="d-none">
+                        <label for="file-input" class="btn btn-light mb-3">Select File</label>
+                    <div id="drop-area">
+                        <div class="upload-icon">
+                            <!-- Upload SVG icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="60" height="70" fill="currentColor"
+                                 class="bi bi-cloud-upload-fill" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                      d="M8 0a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 4.095 0 5.555 0 7.318 0 9.366 1.708 11 3.781 11H7.5V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11h4.188C14.502 11 16 9.57 16 7.773c0-1.636-1.242-2.969-2.834-3.194C12.923 1.999 10.69 0 8 0m-.5 14.5V11h1v3.5a.5.5 0 0 1-1 0" />
+                            </svg>
                         </div>
+                        <p class="drop-instructions">Or Drag & drop your truss image here</p>
+                        <p class="text-muted mb-3">Preview</p>
+                        <div class="preview" id="preview"></div>
+                        <button type="submit" name="upload" class="btn btn-light w-100 mb-2" id="upload-btn">Upload Truss</button>
+                        <div id="status"></div>
                     </div>
+                </div>
+            </form>
 
-                    <a href="create_exam_step4.php" class="btn btn-light w-100 mb-2">Next</a>
-            </div>
+            <a href="create_exam_step4.php" class="btn btn-light w-100">Next</a>
         </div>
     </div>
+</div>
 
-    <!--call external js file -->
-    <script src="drag_to_upload.js">
-    </script>
+<!-- Call external js file -->
+<script src="drag_to_upload.js"></script>
 </body>
 
 </html>

@@ -1,14 +1,14 @@
 // Get DOM elements
 const dropArea = document.getElementById('drop-area');
-const fileInput = document.getElementById('file-input');
+const fileInput = document.querySelector('.upload-form input[type="file"]');
 const preview = document.getElementById('preview');
+const uploadForm = document.querySelector('.upload-form');
+const trussNameInput = document.querySelector('.upload-form input[name="truss_name"]');
 
 // Store selected files
 let files = [];
 
 // Prevent default drag behaviors for these events
-// else different browsers have different default
-// behaviours towards these actions
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     dropArea.addEventListener(eventName, preventDefaults, false);
     document.body.addEventListener(eventName, preventDefaults, false);
@@ -79,16 +79,18 @@ function handleFiles(e) {
 
     if (!files.length) return;
 
-    // Process each file
-    Array.from(files).forEach((file, index) => {
-        if (file.type.match('image.*')) {
-            // Create preview for image files
-            previewImage(file, index);
-        } else {
-            // Create preview for non-image files
-            previewFile(file, index);
-        }
-    });
+    // Only process the first file (since the PHP only handles one file)
+    const file = files[0];
+
+    if (file.type.match('image.*')) {
+        // Create preview for image files
+        previewImage(file, 0);
+    } else {
+        // Show error for non-image files
+        preview.innerHTML = '<div class="alert alert-danger">Only image files are allowed</div>';
+        files = [];
+        return;
+    }
 
     // Add remove functionality to preview items
     addRemoveListeners();
@@ -104,35 +106,18 @@ function previewImage(file, index) {
 
     // When file is loaded, create preview element
     reader.onload = function(e) {
-
-        // dynamically add image item
         const previewItem = document.createElement('div');
         previewItem.className = 'preview-item';
         previewItem.innerHTML = `
-      <img src="${e.target.result}" alt="${file.name}">
-      <p>${file.name} (${formatFileSize(file.size)})</p>
-      <span class="remove-btn" data-index="${index}">×</span>
-    `;
+            <img src="${e.target.result}" alt="${file.name}" class="img-thumbnail mb-2">
+            <p>${file.name} (${formatFileSize(file.size)})</p>
+            <span class="remove-btn" data-index="${index}">×</span>
+        `;
         preview.appendChild(previewItem);
     };
 
     // Read file as data URL (base64)
     reader.readAsDataURL(file);
-}
-
-/**
- * Create preview for non-image files
- * @param {File} file - Any file type
- * @param {number} index - File index in array
- */
-function previewFile(file, index) {
-    const previewItem = document.createElement('div');
-    previewItem.className = 'preview-item';
-    previewItem.innerHTML = `
-    <p>${file.name} (${formatFileSize(file.size)})</p>
-    <span class="remove-btn" data-index="${index}">×</span>
-  `;
-    preview.appendChild(previewItem);
 }
 
 /**
@@ -148,18 +133,14 @@ function formatFileSize(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-
 /**
  * Add click listeners to remove buttons
  */
 function addRemoveListeners() {
     document.querySelectorAll('.remove-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            // Get index from data attribute
-            const index = parseInt(this.getAttribute('data-index'));
-
             // Remove file from array
-            files = Array.from(files).filter((_, i) => i !== index);
+            files = [];
 
             // Re-render previews
             handleFiles({ target: { files } });
@@ -167,22 +148,31 @@ function addRemoveListeners() {
     });
 }
 
-document.querySelector('.upload-form').addEventListener('submit', function(e) {
+// Handle form submission
+uploadForm.addEventListener('submit', function(e) {
     e.preventDefault();
 
     if (!files.length) {
-        alert('Please select files to upload');
+        alert('Please select a file to upload');
+        return;
+    }
+
+    if (!trussNameInput.value.trim()) {
+        alert('Please enter a truss name');
         return;
     }
 
     // Create FormData object for AJAX upload
     const formData = new FormData();
 
-    // Append all files to FormData
-    Array.from(files).forEach((file, index) => {
-        formData.append(`files[${index}]`, file);
-    });
+    // Append the single file (PHP expects 'truss_image')
+    formData.append('truss_image', files[0]);
 
+    // Append the truss name
+    formData.append('truss_name', trussNameInput.value.trim());
+
+    // Add the upload flag
+    formData.append('upload', '1');
 
     // Upload using Fetch API
     uploadFiles(formData);
@@ -193,7 +183,13 @@ document.querySelector('.upload-form').addEventListener('submit', function(e) {
  * @param {FormData} formData - Files and additional data
  */
 function uploadFiles(formData) {
-    fetch('/upload-endpoint', {
+    // Show loading state
+    const uploadBtn = document.getElementById('upload-btn');
+    const originalText = uploadBtn.textContent;
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = 'Uploading...';
+
+    fetch('upload_truss.php', {
         method: 'POST',
         body: formData,
         // Don't set Content-Type header - let browser set it with boundary
@@ -202,20 +198,38 @@ function uploadFiles(formData) {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            return response.json();
+            return response.text();
+        })
+        .then(text => {
+            try {
+                // Try to parse as JSON (for API responses)
+                return JSON.parse(text);
+            } catch {
+                // If not JSON, return the text (for regular form submissions)
+                return { success: true, message: text.includes('success') ? 'Upload successful' : text };
+            }
         })
         .then(data => {
-            console.log('Upload successful:', data);
-            alert(`${files.length} files uploaded successfully!`);
-
-            // Reset UI
-            preview.innerHTML = '';
-            files = [];
-            fileInput.value = '';
+            console.log('Upload response:', data);
+            if (data.success || data.message.includes('success')) {
+                alert('Truss uploaded successfully!');
+                // Reset UI
+                preview.innerHTML = '';
+                files = [];
+                fileInput.value = '';
+                trussNameInput.value = '';
+                // Reload to show the success message from PHP
+                window.location.reload();
+            } else {
+                throw new Error(data.message || 'Unknown error occurred');
+            }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error uploading files: ' + error.message);
+            alert('Error uploading truss: ' + error.message);
+        })
+        .finally(() => {
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = originalText;
         });
-
 }
