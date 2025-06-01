@@ -52,6 +52,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $user_email = $_POST['users'];
     $new_role = $_POST['new_role'];
 
+    if ($new_role === "Password") {
+        // Reset password to default using MD5
+        $defaultPassword = md5("ChangeMyPW01");
+        $reset = $conn->prepare("UPDATE user SET user_password = ? WHERE user_email = ?");
+        $reset->bind_param("ss", $defaultPassword, $user_email);
+        if ($reset->execute()) {
+            $_SESSION['success'] = "Password reset to default (ChangeMyPW01).";
+        } else {
+            $_SESSION['error'] = "Failed to reset password.";
+        }
+        header("Location: modify_user.php");
+        exit();
+    }
+
     // Get user ID
     $getUserID = $conn->prepare("SELECT user_ID FROM user WHERE user_email = ?");
     $getUserID->bind_param("s", $user_email);
@@ -169,10 +183,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <p>Select new role</p>
                     <div class="mb-3">
                         <select class="form-control" name="new_role" required>
-                            <option value="" disabled selected>Select New Role (Coordinator, Administrator) or action (Deactivate)</option>
-                            <option value="Coordinator">Coordinator</option>
-                            <option value="Administrator">Administrator</option>
+                            <option value="" disabled selected>Select Action</option>
+                            <option value="Coordinator">Add Role: Coordinator</option>
+                            <option value="Administrator">Add Role: Administrator</option>
                             <option value="Disabled">Deactivate User</option>
+                            <option value="Password">Set Default Password (ChangeMyPW01)</option>
                         </select>
                     </div>
 
