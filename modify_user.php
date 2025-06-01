@@ -52,9 +52,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $user_email = $_POST['users'];
     $new_role = $_POST['new_role'];
 
-    $update_sql = "UPDATE user SET user_role = ? WHERE user_email = ?";
-    $update_stmt = $conn->prepare($update_sql);
-    $update_stmt->bind_param("ss", $new_role, $user_email);
+    // Get user ID
+    $getUserID = $conn->prepare("SELECT user_ID FROM user WHERE user_email = ?");
+    $getUserID->bind_param("s", $user_email);
+    $getUserID->execute();
+    $userResult = $getUserID->get_result();
+    $userRow = $userResult->fetch_assoc();
+    $user_ID = $userRow['user_ID'] ?? null;
+
+    if (!$user_ID) {
+        $_SESSION['error'] = "User not found.";
+        header("Location: modify_user.php");
+        exit();
+    }
+
+    // Remove all existing roles
+    $deleteRoles = $conn->prepare("DELETE FROM user_role_map WHERE user_ID = ?");
+    $deleteRoles->bind_param("i", $user_ID);
+    $deleteRoles->execute();
+
+    if ($new_role === "Disabled") {
+        // Explicitly assign role_id = 3 (Disabled)
+        $disabledRoleID = 3;
+        $assignDisabledRole = $conn->prepare("INSERT INTO user_role_map (user_ID, role_id) VALUES (?, ?)");
+        $assignDisabledRole->bind_param("ii", $user_ID, $disabledRoleID);
+        $assignDisabledRole->execute();
+    } else {
+        // Get role ID from role name
+        $getRoleID = $conn->prepare("SELECT role_id FROM role WHERE role_name = ?");
+        $getRoleID->bind_param("s", $new_role);
+        $getRoleID->execute();
+        $roleResult = $getRoleID->get_result();
+        $roleRow = $roleResult->fetch_assoc();
+        $role_id = $roleRow['role_id'] ?? null;
+
+        if (!$role_id) {
+            $_SESSION['error'] = "Invalid role selected.";
+            header("Location: modify_user.php");
+            exit();
+        }
+
+        // Assign new role
+        $assignRole = $conn->prepare("INSERT INTO user_role_map (user_ID, role_id) VALUES (?, ?)");
+        $assignRole->bind_param("ii", $user_ID, $role_id);
+        $assignRole->execute();
+    }
+
+
+    $_SESSION['success'] = "User updated successfully.";
+    header("Location: modify_user.php");
+    exit();
+
 
     if ($update_stmt->execute()) {
         $_SESSION['success'] = "User updated successfully";
@@ -121,9 +169,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <p>Select new role</p>
                     <div class="mb-3">
                         <select class="form-control" name="new_role" required>
-                            <option value="" disabled selected>Select New Role (Coordinator, Administrator)</option>
+                            <option value="" disabled selected>Select New Role (Coordinator, Administrator) or action (Deactivate)</option>
                             <option value="Coordinator">Coordinator</option>
                             <option value="Administrator">Administrator</option>
+                            <option value="Disabled">Deactivate User</option>
                         </select>
                     </div>
 

@@ -32,9 +32,14 @@ while ($row = $result->fetch_assoc()) {
     $roles[] = $row['role_name'];
 }
 
-// Set to 'User' if no roles found
-if (empty($roles)) {
-    $roles[] = 'User';
+// Check if user is marked as disabled
+if (in_array("Disabled", $roles)) {
+    session_unset();
+    session_destroy();
+    session_start(); // restart session to set error message
+    $_SESSION['error'] = "Your account has been disabled. Please contact your administrator.";
+    header("Location: login.php");
+    exit();
 }
 
 ?>
