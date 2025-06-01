@@ -1,0 +1,12 @@
+"Student Name",Email,"Question Number","Question Content",Parameter,Value
+"Jane Hawker",jhawker@mymail.unisa.edu.au,"Question 1","Determine the forces in members AB, BC, and AC of the given triangular truss using the method of joints.",,
+"Jane Hawker",jhawker@mymail.unisa.edu.au,"Question 2","Identify all zero-force members in the provided truss structure. Explain your reasoning.",,
+"Jane Hawker",jhawker@mymail.unisa.edu.au,"Question 3","Using the method of sections, calculate the internal force in member DE. Indicate whether it is in tension or compression.",,
+"Jane Hawker",jhawker@mymail.unisa.edu.au,"Question 4","Given a uniformly distributed load on the top chord of the truss, calculate the reaction forces at the supports.",,
+"Jane Hawker",jhawker@mymail.unisa.edu.au,"Question 5","Suggest a suitable cross-sectional area for member FG to safely resist a compressive force of 25 kN. Use the provided yield strength.",,
+"Jane Hawker",jhawker@mymail.unisa.edu.au,,,"Total Span of Truss (m)",7
+"Jane Hawker",jhawker@mymail.unisa.edu.au,,,"Point Load at Node B (kN)",14
+"Jane Hawker",jhawker@mymail.unisa.edu.au,,,"Yield Strength of Steel (MPa)",309
+"Jane Hawker",jhawker@mymail.unisa.edu.au,,,"Cross-sectional Area (mm2)",434
+"Jane Hawker",jhawker@mymail.unisa.edu.au,,,"Support Reaction at A (kN)",21
+"Jane Hawker",jhawker@mymail.unisa.edu.au,,,P1,26

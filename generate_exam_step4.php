@@ -54,6 +54,10 @@ if (!is_dir($pdf_dir)) {
 
 $generated_files = [];
 
+// Exam Summary
+$csvFile = fopen($pdf_dir . 'exam_summary.csv', 'w');
+fputcsv($csvFile, ['Student Name', 'Email', 'Question Number', 'Question Content', 'Parameter', 'Value']);
+
 // Handle PDF generation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
     // Clear previous files
@@ -101,6 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
         $questionResult = $stmt2->get_result();
 
         $questionNumber = 1;
+        // Exam Summary
+        $studentName = "{$row['first_name']} {$row['last_name']}";
+        $email = $row['student_email'];
 
         while ($question = $questionResult->fetch_assoc()) {
             // Write Question Header
@@ -111,6 +118,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
             $pdf->SetFont('Arial', '', 12);
             $pdf->MultiCell(0, 8, $question['contents']);
             $pdf->Ln(5); // Space between questions
+
+            // Exam Summary
+            fputcsv($csvFile, [$studentName, $email, "Question {$questionNumber}", $question['contents'], '', '']);
 
             $questionNumber++;
         }
@@ -134,7 +144,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
             $pdf->Cell(60, 10, $param['parameter_name'], 1);
             $pdf->Cell(60, 10, $value, 1);
             $pdf->Ln();
+
+            // Exam Summary
+            fputcsv($csvFile, [$studentName, $email, '', '', $param['parameter_name'], $value]);
         }
+
+        // Exam Summary
+        fclose($csvFile);
+
         $pdf->Ln(10);
 
         // Add the truss image
@@ -183,8 +200,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
                 </form>
             <?php endif; ?>
 
-
             <?php if (!empty($generated_files)): ?>
+                <?php
+                // Display CSV summary if it exists
+                $csvPath = $pdf_dir . 'exam_summary.csv';
+                if (file_exists($csvPath)):
+                    ?>
+                    <div class="alert alert-info text-start text-center">
+                        <strong>CSV Summary Available:</strong><br>
+                        <a href="<?php echo $csvPath; ?>" class="btn btn-sm btn-primary mt-2" download>
+                            Download CSV Summary
+                        </a>
+                    </div>
+                <?php endif; ?>
+
                 <h6 class="mt-3">Generated Files</h6>
                 <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
                     <table class="table table-bordered table-sm bg-white text-dark">
