@@ -1,12 +1,45 @@
 "Student Name",Email,"Question Number","Question Content",Parameter,Value
-"Jane Hawker",jhawker@mymail.unisa.edu.au,"Question 1","Determine the forces in members AB, BC, and AC of the given triangular truss using the method of joints.",,
-"Jane Hawker",jhawker@mymail.unisa.edu.au,"Question 2","Identify all zero-force members in the provided truss structure. Explain your reasoning.",,
-"Jane Hawker",jhawker@mymail.unisa.edu.au,"Question 3","Using the method of sections, calculate the internal force in member DE. Indicate whether it is in tension or compression.",,
-"Jane Hawker",jhawker@mymail.unisa.edu.au,"Question 4","Given a uniformly distributed load on the top chord of the truss, calculate the reaction forces at the supports.",,
-"Jane Hawker",jhawker@mymail.unisa.edu.au,"Question 5","Suggest a suitable cross-sectional area for member FG to safely resist a compressive force of 25 kN. Use the provided yield strength.",,
-"Jane Hawker",jhawker@mymail.unisa.edu.au,,,"Total Span of Truss (m)",7
-"Jane Hawker",jhawker@mymail.unisa.edu.au,,,"Point Load at Node B (kN)",14
-"Jane Hawker",jhawker@mymail.unisa.edu.au,,,"Yield Strength of Steel (MPa)",309
-"Jane Hawker",jhawker@mymail.unisa.edu.au,,,"Cross-sectional Area (mm2)",434
-"Jane Hawker",jhawker@mymail.unisa.edu.au,,,"Support Reaction at A (kN)",21
-"Jane Hawker",jhawker@mymail.unisa.edu.au,,,P1,26
+"Alice Nguyen",alice.nguyen@example.com,"Question 1","A simple pin-jointed truss is loaded with a vertical force of 1000 N at joint C. Using the method of joints, determine the internal forces in members AC, BC, and CD. Indicate whether the forces are tensile or compressive.",,
+"Alice Nguyen",alice.nguyen@example.com,"Question 2","For the truss shown, with support A pinned and support E on a roller, calculate the support reactions at A and E. The truss carries a uniform vertical load on joint C. Assume all members are weightless.",,
+"Alice Nguyen",alice.nguyen@example.com,"Question 3","Using the method of sections, determine the forces in members EF, DF, and DE of the loaded truss. A vertical load of 1200 N is applied at joint F. Clearly show your section and assumptions.",,
+"Alice Nguyen",alice.nguyen@example.com,"Question 4","A Pratt truss is subjected to vertical loads at the top and bottom chords. Explain how zero-force members are identified in a truss structure and identify all zero-force members in the given configuration.",,
+"Alice Nguyen",alice.nguyen@example.com,"Question 5","Given a Warren truss with a span of 6 m and equal panel lengths, determine the maximum force in any member when a point load of 1500 N is applied at the center-top joint. Use symmetry in your analysis.",,
+"Alice Nguyen",alice.nguyen@example.com,"Question 6","Design an appropriate cross-section for a truss member experiencing a compressive force of 18 kN. The material is structural steel with a yield strength of 250 MPa, and a factor of safety of 1.5 is required. Show all calculations including buckling checks.",,
+"Alice Nguyen",alice.nguyen@example.com,,,LoadAtJointC_N,844
+"Alice Nguyen",alice.nguyen@example.com,,,LoadAtJointC_N,844
+"Alice Nguyen",alice.nguyen@example.com,,,LoadAtJointF_N,1401
+"Alice Nguyen",alice.nguyen@example.com,,,LoadAtJointF_N,1401
+"Alice Nguyen",alice.nguyen@example.com,,,UniformLoadAtJointC_N,692
+"Alice Nguyen",alice.nguyen@example.com,,,UniformLoadAtJointC_N,692
+"Alice Nguyen",alice.nguyen@example.com,,,PointLoadAtTopCenterJoint_N,1000
+"Alice Nguyen",alice.nguyen@example.com,,,PointLoadAtTopCenterJoint_N,1000
+"Alice Nguyen",alice.nguyen@example.com,,,TrussSpan_m,4
+"Alice Nguyen",alice.nguyen@example.com,,,TrussSpan_m,4
+"Alice Nguyen",alice.nguyen@example.com,,,CompressiveForce_kN,20
+"Alice Nguyen",alice.nguyen@example.com,,,CompressiveForce_kN,20
+"Alice Nguyen",alice.nguyen@example.com,,,YieldStrength_MPa,261
+"Alice Nguyen",alice.nguyen@example.com,,,YieldStrength_MPa,261
+"Alice Nguyen",alice.nguyen@example.com,,,FactorOfSafety,1.22
+"Alice Nguyen",alice.nguyen@example.com,,,FactorOfSafety,1.22
+"Benjamin Clark",ben.clark@example.com,"Question 1","A simple pin-jointed truss is loaded with a vertical force of 1000 N at joint C. Using the method of joints, determine the internal forces in members AC, BC, and CD. Indicate whether the forces are tensile or compressive.",,
+"Benjamin Clark",ben.clark@example.com,"Question 2","For the truss shown, with support A pinned and support E on a roller, calculate the support reactions at A and E. The truss carries a uniform vertical load on joint C. Assume all members are weightless.",,
+"Benjamin Clark",ben.clark@example.com,"Question 3","Using the method of sections, determine the forces in members EF, DF, and DE of the loaded truss. A vertical load of 1200 N is applied at joint F. Clearly show your section and assumptions.",,
+"Benjamin Clark",ben.clark@example.com,"Question 4","A Pratt truss is subjected to vertical loads at the top and bottom chords. Explain how zero-force members are identified in a truss structure and identify all zero-force members in the given configuration.",,
+"Benjamin Clark",ben.clark@example.com,"Question 5","Given a Warren truss with a span of 6 m and equal panel lengths, determine the maximum force in any member when a point load of 1500 N is applied at the center-top joint. Use symmetry in your analysis.",,
+"Benjamin Clark",ben.clark@example.com,"Question 6","Design an appropriate cross-section for a truss member experiencing a compressive force of 18 kN. The material is structural steel with a yield strength of 250 MPa, and a factor of safety of 1.5 is required. Show all calculations including buckling checks.",,
+"Benjamin Clark",ben.clark@example.com,,,LoadAtJointC_N,942
+"Benjamin Clark",ben.clark@example.com,,,LoadAtJointC_N,942
+"Benjamin Clark",ben.clark@example.com,,,LoadAtJointF_N,1100
+"Benjamin Clark",ben.clark@example.com,,,LoadAtJointF_N,1100
+"Benjamin Clark",ben.clark@example.com,,,UniformLoadAtJointC_N,972
+"Benjamin Clark",ben.clark@example.com,,,UniformLoadAtJointC_N,972
+"Benjamin Clark",ben.clark@example.com,,,PointLoadAtTopCenterJoint_N,1377
+"Benjamin Clark",ben.clark@example.com,,,PointLoadAtTopCenterJoint_N,1377
+"Benjamin Clark",ben.clark@example.com,,,TrussSpan_m,4
+"Benjamin Clark",ben.clark@example.com,,,TrussSpan_m,4
+"Benjamin Clark",ben.clark@example.com,,,CompressiveForce_kN,16
+"Benjamin Clark",ben.clark@example.com,,,CompressiveForce_kN,16
+"Benjamin Clark",ben.clark@example.com,,,YieldStrength_MPa,297
+"Benjamin Clark",ben.clark@example.com,,,YieldStrength_MPa,297
+"Benjamin Clark",ben.clark@example.com,,,FactorOfSafety,1.55
+"Benjamin Clark",ben.clark@example.com,,,FactorOfSafety,1.55

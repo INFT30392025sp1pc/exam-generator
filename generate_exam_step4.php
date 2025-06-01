@@ -55,8 +55,23 @@ if (!is_dir($pdf_dir)) {
 $generated_files = [];
 
 // Exam Summary
-$csvFile = fopen($pdf_dir . 'exam_summary.csv', 'w');
+$csv_dir = 'generated_pdfs/';
+$csv_path = $csv_dir . 'exam_summary.csv';
+
+// Ensure directory exists
+if (!is_dir($csv_dir)) {
+    mkdir($csv_dir, 0777, true);
+}
+
+// Open file
+$csvFile = fopen($csv_path, 'w');
+if (!$csvFile) {
+    die("Failed to open CSV file for writing at: $csv_path");
+}
+
+// Write header row
 fputcsv($csvFile, ['Student Name', 'Email', 'Question Number', 'Question Content', 'Parameter', 'Value']);
+
 
 // Handle PDF generation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
@@ -78,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
         $name = "{$row['first_name']} {$row['last_name']}";
         $sanitizedFirst = preg_replace('/[^a-zA-Z0-9]/', '', $row['first_name']);
         $sanitizedLast = preg_replace('/[^a-zA-Z0-9]/', '', $row['last_name']);
-        $filename = $pdf_dir . "Exam_{$sanitizedFirst}_{$sanitizedLast}_{$row['student_ID']}.pdf";
+        $filename = $pdf_dir . "{$row['student_ID']}_{$sanitizedFirst}_{$sanitizedLast}_exam.pdf";
 
 
         $pdf = new Fpdi();
@@ -140,17 +155,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
 
         $pdf->SetFont('Arial', '', 10);
         while ($param = $param_result->fetch_assoc()) {
-            $value = rand($param['parameter_lower'], $param['parameter_upper']);
+            $lower = $param['parameter_lower'];
+            $upper = $param['parameter_upper'];
+
+            $isDecimal = (fmod($lower, 1) != 0) || (fmod($upper, 1) != 0);
+
+            if ($isDecimal) {
+                $value = round($lower + mt_rand() / mt_getrandmax() * ($upper - $lower), 2);
+            } else {
+                $value = rand((int) $lower, (int) $upper);
+            }
+
+            $formattedValue = $isDecimal ? number_format($value, 2) : $value;
+
             $pdf->Cell(60, 10, $param['parameter_name'], 1);
-            $pdf->Cell(60, 10, $value, 1);
+            $pdf->Cell(60, 10, $formattedValue, 1);
+            $pdf->Ln();
+
+            fputcsv($csvFile, [$studentName, $email, '', '', $param['parameter_name'], $formattedValue]);
+
             $pdf->Ln();
 
             // Exam Summary
             fputcsv($csvFile, [$studentName, $email, '', '', $param['parameter_name'], $value]);
         }
-
-        // Exam Summary
-        fclose($csvFile);
 
         $pdf->Ln(10);
 
@@ -167,11 +195,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
         }
 
         $pdf->Output('F', $filename);
-        $_SESSION['success'] = "Exam papers generated successfully";
+        $_SESSION['success'] = "Exam papers generated successfully. Note: To save files to a specific location, right-click the download button and select 'Save link as...'";
         $generated_files[] = $filename;
     }
 
     $_SESSION['generated_files'] = $generated_files;
+
+    // Exam Summary
+    fclose($csvFile);
 }
 ?>
 <!DOCTYPE html>
@@ -263,8 +294,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
+
+                // Change the button appearance to "Downloaded"
+                link.classList.remove('btn-success');
+                link.classList.add('btn-secondary');
+                link.textContent = 'Downloaded';
             });
         }
+
     </script>
     <?php unset($_SESSION['generated_files']); ?>
 

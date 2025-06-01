@@ -59,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['parameters'])) {
         $lower = $param['lower'];
         $upper = $param['upper'];
 
-        $insert_stmt->bind_param("siiii", $name, $lower, $upper, $exam_ID, $truss_ID);
+        $insert_stmt->bind_param("sddii", $name, $lower, $upper, $exam_ID, $truss_ID);
         $insert_stmt->execute();
     }
 
@@ -158,8 +158,8 @@ while ($row = $truss_result->fetch_assoc()) {
             const row = document.createElement('tr');
             row.innerHTML = `
         <td><input type="text" name="parameters[${rowCount}][name]" class="form-control form-control-sm text-dark" required></td>
-        <td><input type="number" name="parameters[${rowCount}][lower]" class="form-control form-control-sm text-dark" required></td>
-        <td><input type="number" name="parameters[${rowCount}][upper]" class="form-control form-control-sm text-dark" required></td>
+        <td><input type="number" step="any" name="parameters[${rowCount}][lower]" class="form-control form-control-sm text-dark" required></td>
+        <td><input type="number" step="any" name="parameters[${rowCount}][upper]" class="form-control form-control-sm text-dark" required></td>
         <td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">Remove</button></td>
     `;
             table.appendChild(row);
