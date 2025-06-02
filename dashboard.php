@@ -86,7 +86,8 @@ if (in_array("Disabled", $roles)) {
                     <p class="text-white fw-bold mt-4 mb-2 border-bottom border-light pb-1">Coordinator Actions</p>
                     <a href="create_exam_questions.php" class="btn btn-light w-100 mb-2">Create Exam Questions</a>
                     <a href="generate_exam_files.php" class="btn btn-light w-100 mb-2">Generate Exam Files</a>
-                    <a href="retrieve_past_exams.php" class="btn btn-light w-100 mb-2">Retrieve past exams</a>
+                    <a href="manage_exam_data.php" class="btn btn-light w-100 mb-2">Manage Exam Data</a>
+                    <a href="retrieve_past_exams.php" class="btn btn-light w-100 mb-2">Retrieve Past Exams</a>
                 <?php } ?><br><br>
 
                 <!-- Common Buttons -->
