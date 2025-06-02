@@ -53,6 +53,8 @@ SELECT
     e.exam_name
 FROM question q
 JOIN exam e ON q.exam_ID = e.exam_ID
+JOIN subject s ON e.subject_code = s.subject_code
+WHERE e.exam_archive = 0 AND s.subject_archive = 0
 GROUP BY e.exam_ID
 ORDER BY e.exam_year DESC, e.exam_sp DESC, e.subject_code ASC
 ";
