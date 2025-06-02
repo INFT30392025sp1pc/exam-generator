@@ -123,7 +123,16 @@ while ($row = $subject_result->fetch_assoc()) {
                             value="<?= date('Y'); ?>" required>
                     </div>
                     <div class="mb-3">
-                        <input type="text" class="form-control" name="study_period" placeholder="Study Period" required>
+                        <select class="form-control" name="study_period" required>
+                            <option value="" disabled selected>Select Study Period</option>
+                            <option value="SP1">SP1</option>
+                            <option value="SP2">SP2</option>
+                            <option value="SP3">SP3</option>
+                            <option value="SP4">SP4</option>
+                            <option value="SP5">SP5</option>
+                            <option value="SP6">SP6</option>
+                            <option value="SP7">SP7</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <input type="text" class="form-control" name="exam_name" placeholder="Exam Name" required>
