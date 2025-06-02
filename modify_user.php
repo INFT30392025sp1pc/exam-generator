@@ -47,13 +47,11 @@ $user_result = $conn->query($user_sql);
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
-    // Takes the user_email in the dropdown to define where to update in the db
     $user_email = $_POST['users'];
     $new_role = $_POST['new_role'];
 
+    // Handle password reset
     if ($new_role === "Password") {
-        // Reset password to default using MD5
         $defaultPassword = md5("ChangeMyPW01");
         $reset = $conn->prepare("UPDATE user SET user_password = ? WHERE user_email = ?");
         $reset->bind_param("ss", $defaultPassword, $user_email);
@@ -80,19 +78,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // Remove all existing roles
-    $deleteRoles = $conn->prepare("DELETE FROM user_role_map WHERE user_ID = ?");
-    $deleteRoles->bind_param("i", $user_ID);
-    $deleteRoles->execute();
-
     if ($new_role === "Disabled") {
-        // Explicitly assign role_id = 3 (Disabled)
+        // Remove all roles before deactivating
+        $deleteRoles = $conn->prepare("DELETE FROM user_role_map WHERE user_ID = ?");
+        $deleteRoles->bind_param("i", $user_ID);
+        $deleteRoles->execute();
+
+        // Assign Disabled role (assumed to be role_id 3)
         $disabledRoleID = 3;
         $assignDisabledRole = $conn->prepare("INSERT INTO user_role_map (user_ID, role_id) VALUES (?, ?)");
         $assignDisabledRole->bind_param("ii", $user_ID, $disabledRoleID);
         $assignDisabledRole->execute();
     } else {
-        // Get role ID from role name
+        // Remove the Disabled role only if it exists
+        $removeDisabled = $conn->prepare("DELETE FROM user_role_map WHERE user_ID = ? AND role_id = 3");
+        $removeDisabled->bind_param("i", $user_ID);
+        $removeDisabled->execute();
+
+        // Get the role_id for the new role
         $getRoleID = $conn->prepare("SELECT role_id FROM role WHERE role_name = ?");
         $getRoleID->bind_param("s", $new_role);
         $getRoleID->execute();
@@ -106,25 +109,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         }
 
-        // Assign new role
-        $assignRole = $conn->prepare("INSERT INTO user_role_map (user_ID, role_id) VALUES (?, ?)");
-        $assignRole->bind_param("ii", $user_ID, $role_id);
-        $assignRole->execute();
-    }
+        // Assign the new role
+        // Check if the role already exists for this user
+        $checkRole = $conn->prepare("SELECT 1 FROM user_role_map WHERE user_ID = ? AND role_id = ?");
+        $checkRole->bind_param("ii", $user_ID, $role_id);
+        $checkRole->execute();
+        $checkResult = $checkRole->get_result();
 
+        if ($checkResult->num_rows === 0) {
+            $assignRole = $conn->prepare("INSERT INTO user_role_map (user_ID, role_id) VALUES (?, ?)");
+            $assignRole->bind_param("ii", $user_ID, $role_id);
+            $assignRole->execute();
+        }
+
+    }
 
     $_SESSION['success'] = "User updated successfully.";
     header("Location: modify_user.php");
     exit();
-
-
-    if ($update_stmt->execute()) {
-        $_SESSION['success'] = "User updated successfully";
-        header("Location: modify_user.php");
-        exit();
-    } else {
-        $_SESSION['error'] = "Error updating user.";
-    }
 }
 ?>
 
@@ -169,7 +171,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <form method="POST" action="">
                     <div class="mb-3">
                         <select class="form-control" name="users" id="user_dropdown" required>
-                            <option value="" disabled selected>Select user to modify</option>
+                            <option value="" disabled selected>Select User to Modify</option>
                             <?php while ($row = $user_result->fetch_assoc()) {
                                 $user_text = $row['first_name'] . " " . $row['last_name'] . " (" . $row['user_role'] . ")";
                                 ?>
@@ -180,14 +182,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <?php } ?>
                         </select>
                     </div>
-                    <p>Select new role</p>
                     <div class="mb-3">
                         <select class="form-control" name="new_role" required>
                             <option value="" disabled selected>Select Action</option>
-                            <option value="Coordinator">Add Role: Coordinator</option>
-                            <option value="Administrator">Add Role: Administrator</option>
-                            <option value="Disabled">Deactivate User</option>
-                            <option value="Password">Set Default Password (ChangeMyPW01)</option>
+                            <option value="Coordinator" title="Grants ability to create and manage exams">Add Role:
+                                Coordinator</option>
+                            <option value="Administrator" title="Full access including user and subject management">Add
+                                Role: Administrator</option>
+                            <option value="Disabled" title="Removes all active roles and deactivates the user">
+                                Deactivate User</option>
+                            <option value="Password" title="Resets the password to 'ChangeMyPW01' using MD5">Set Default
+                                Password (ChangeMyPW01)</option>
                         </select>
                     </div>
 
