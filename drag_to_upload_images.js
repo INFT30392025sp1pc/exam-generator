@@ -192,41 +192,32 @@ function uploadFiles(formData) {
     fetch('upload_truss.php', {
         method: 'POST',
         body: formData,
-        // Don't set Content-Type header - let browser set it with boundary
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest' // Identify as AJAX request
+        }
     })
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            return response.text();
-        })
-        .then(text => {
-            try {
-                // Try to parse as JSON (for API responses)
-                return JSON.parse(text);
-            } catch {
-                // If not JSON, return the text (for regular form submissions)
-                return { success: true, message: text.includes('success') ? 'Upload successful' : text };
-            }
+            return response.json();
         })
         .then(data => {
-            console.log('Upload response:', data);
-            if (data.success || data.message.includes('success')) {
-                alert('Truss uploaded successfully!');
-                // Reset UI
-                preview.innerHTML = '';
-                files = [];
-                fileInput.value = '';
-                trussNameInput.value = '';
-                // Reload to show the success message from PHP
+            if (data.success) {
+                // Instead of showing alert, reload to show PHP session message
                 window.location.reload();
             } else {
-                throw new Error(data.message || 'Unknown error occurred');
+                throw new Error(data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error uploading truss: ' + error.message);
+            // Show temporary error message (will be replaced by PHP message on reload)
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+            setTimeout(() => {
+                window.location.reload(); // Still reload to sync state
+            }, 3000);
         })
         .finally(() => {
             uploadBtn.disabled = false;

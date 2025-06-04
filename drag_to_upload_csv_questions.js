@@ -125,7 +125,9 @@ function formatFileSize(bytes) {
 /**
  * Handle file upload
  */
-function handleUpload() {
+function handleUpload(e) {
+    e.preventDefault(); // Prevent form submission
+
     if (!file) {
         showAlert('Please select a CSV file to upload', 'danger');
         return;
@@ -141,7 +143,7 @@ function handleUpload() {
     const originalText = uploadBtn.textContent;
     uploadBtn.textContent = 'Uploading...';
 
-    fetch('upload_question_file.php', {
+    fetch(window.location.href, {  // Submit to current URL
         method: 'POST',
         body: formData
     })
@@ -149,24 +151,27 @@ function handleUpload() {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            return response.text();
+            return response.json(); // Expect JSON response
         })
-        .then(text => {
-            // Check if response contains success message
-            if (text.includes('successfully')) {
-                showAlert('Questions uploaded successfully!', 'success');
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
                 // Reset file selection
                 file = null;
                 fileInput.value = '';
                 preview.innerHTML = '';
-                // Reload to show any PHP session messages
+
+                // Option 1: Reload to show PHP messages (if you want both)
                 setTimeout(() => location.reload(), 1500);
+
+                // Option 2: Just show the JS alert (remove the reload if you prefer this)
+                // showAlert(data.message, 'success');
             } else {
-                throw new Error(text || 'Unknown error occurred');
+                throw new Error(data.message || 'Unknown error occurred');
             }
         })
         .catch(error => {
-            showAlert('Error: ' + error.message, 'danger');
+            showAlert(error.message, 'danger');
             console.error('Upload error:', error);
         })
         .finally(() => {

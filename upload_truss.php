@@ -1,5 +1,4 @@
 <?php
-
 require_once 'functions.php';
 enableDebug(true); // Set to false in production
 
@@ -48,22 +47,30 @@ if (!isset($_SESSION['exam_ID'])) {
 }
 $exam_ID = $_SESSION['exam_ID'];
 
-// Handle image upload
+// Handle image upload (replace the existing upload handler)
+function sendJsonResponse($data) {
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    exit();
+}
+
 if (isset($_POST['upload']) && isset($_FILES['truss_image'])) {
+    $response = ['success' => false, 'message' => ''];
+
     $image = $_FILES['truss_image'];
     $truss_name = $_POST['truss_name'];
 
     // Validate file type
     $allowed_types = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
     if (!in_array($image['type'], $allowed_types)) {
-        $_SESSION['error'] = "Only PNG, JPG, JPEG, or SVG images are allowed.";
-        header("Location: upload_truss.php");
-        exit();
+        $response['message'] = "Only PNG, JPG, JPEG, or SVG images are allowed.";
+        sendJsonResponse($response);
     }
 
     $target_dir = "uploads/truss/";
-    if (!is_dir($target_dir))
+    if (!is_dir($target_dir)) {
         mkdir($target_dir, 0755, true);
+    }
     $filename = uniqid("truss_") . "_" . basename($image["name"]);
     $target_file = $target_dir . $filename;
 
@@ -72,15 +79,25 @@ if (isset($_POST['upload']) && isset($_FILES['truss_image'])) {
         $insert->bind_param("ssi", $truss_name, $target_file, $exam_ID);
         if ($insert->execute()) {
             $_SESSION['success'] = "Truss image uploaded successfully.";
+            $response['success'] = true;
+            $response['message'] = $_SESSION['success'];
         } else {
             $_SESSION['error'] = "Failed to save truss image to database.";
+            $response['message'] = $_SESSION['error'];
         }
     } else {
         $_SESSION['error'] = "Failed to move uploaded file.";
+        $response['message'] = $_SESSION['error'];
     }
 
-    header("Location: upload_truss.php");
-    exit();
+    // If this is an AJAX request, return JSON
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        sendJsonResponse($response);
+    } else {
+        // Regular form submission
+        header("Location: upload_truss.php");
+        exit();
+    }
 }
 ?>
 

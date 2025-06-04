@@ -52,31 +52,60 @@ if (!isset($_SESSION['exam_ID'])) {
 $exam_ID = $_SESSION['exam_ID'];
 
 // Handle the csv upload
-if (isset($_POST['upload'])) {   // If the upload button is set (i.e. has been clicked)
+if (isset($_POST['upload'])) {
+    $filename = $_FILES["file"]["tmp_name"];
+    $successCount = 0;
+    $errors = [];
+    $response = ['success' => false, 'message' => ''];
 
-    $filename = $_FILES["file"]["tmp_name"];  // Create filename variable (i.e. file uploaded)
+    if ($_FILES["file"]["size"] > 0) {
+        $file = fopen($filename, "r");
 
-    if ($_FILES["file"]["size"] > 0) {   // If the file (named "file" in form) exists
-
-        $file = fopen($filename, "r");  // Create opened file variable
-
-        while (($row = fgetcsv($file)) !== FALSE) {  // Basically a loop through the csv
-
-            $insert_sql = 'INSERT INTO question (exam_ID, contents, time_created) VALUES (?, ?, NOW())'; // SQL Statement
+        while (($row = fgetcsv($file)) !== FALSE) {
+            $insert_sql = 'INSERT INTO question (exam_ID, contents, time_created) VALUES (?, ?, NOW())';
             $contents = $row[0];
             $insert_stmt = $conn->prepare($insert_sql);
             $insert_stmt->bind_param('ss', $exam_ID, $contents);
 
             if ($insert_stmt->execute()) {
-                $_SESSION['success'] = "Questions added successfully.";
+                $successCount++;
             } else {
-                $error = "Error adding questions.";
+                $errors[] = "Error adding question: " . $conn->error;
             }
         }
 
         fclose($file);
+
+        if ($successCount > 0) {
+            $message = "Successfully added $successCount questions.";
+            if (!empty($errors)) {
+                $message .= " " . count($errors) . " errors occurred.";
+            }
+
+            $_SESSION['success'] = $message; // Still set session for page reload
+            $response = [
+                'success' => true,
+                'message' => $message
+            ];
+        } else {
+            $message = !empty($errors) ? implode("\n", $errors) : "No questions were added.";
+            $_SESSION['error'] = $message;
+            $response = [
+                'success' => false,
+                'message' => $message
+            ];
+        }
+    } else {
+        $response = [
+            'success' => false,
+            'message' => "The file is empty."
+        ];
     }
 
+    // Return JSON response
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit(); // Important to prevent HTML output
 }
 
 ?>
