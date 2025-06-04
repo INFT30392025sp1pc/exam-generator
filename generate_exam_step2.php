@@ -88,8 +88,10 @@ if ($exam_ID) {
 }
 
 // Handle CSV file upload if submitted
+// Handle CSV file upload if submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['student_csv']) && $_FILES['student_csv']['error'] === UPLOAD_ERR_OK) {
     $csvFile = $_FILES['student_csv']['tmp_name'];
+    $csvFileName = $_FILES['student_csv']['name']; // Get the original filename
     $csvStudents = [];
 
     if (($handle = fopen($csvFile, "r")) !== FALSE) {
@@ -108,9 +110,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['student_csv']) && $_
         }
         fclose($handle);
 
-        // Store CSV students in session
+        // Store CSV students and filename in session
         $_SESSION['csv_students'] = $csvStudents;
-        $_SESSION['success'] = "CSV file uploaded successfully. Students will be merged with existing list.";
+        $_SESSION['csv_filename'] = $csvFileName; // Store the filename
+        $_SESSION['success'] = "CSV file '".htmlspecialchars($csvFileName)."' uploaded successfully. Students will be merged with existing list.";
         header("Location: generate_exam_step2.php?question_ID=".$question_ID);
         exit();
     } else {
@@ -196,8 +199,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_students'])) {
 
         <!-- CSV Upload Section -->
         <div class="card mb-3 text-dark">
-            <div class="card-header bg-light">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Upload Student List (CSV)</h5>
+                <?php if (isset($_SESSION['csv_filename'])): ?>
+                    <span class="badge bg-info text-dark">
+                            <?php echo htmlspecialchars($_SESSION['csv_filename']); ?>
+                        </span>
+                <?php endif; ?>
             </div>
             <div class="card-body">
                 <form method="POST" enctype="multipart/form-data">
