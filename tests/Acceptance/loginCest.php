@@ -97,4 +97,12 @@ final class loginCest
         $I->amOnPage('/login.php');
     }
 
+    public function testForgetPassword(AcceptanceTester $I): void
+    {
+        $I->amOnPage('/login.php');
+        $I->click('Forgotten password');
+        $I->see('please contact your administrator');
+        $I->amOnPage('/forgot_password.php');
+    }
+
 }
