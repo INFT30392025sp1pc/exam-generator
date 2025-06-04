@@ -16,11 +16,11 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 -- SET @MYSQLDUMP_TEMP_LOG_BIN = @@SESSION.SQL_LOG_BIN;
 -- SET @@SESSION.SQL_LOG_BIN= 0;
-
 --
--- GTID state at the beginning of the backup 
+-- --
+-- -- GTID state at the beginning of the backup
+-- --
 --
-
 -- SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '';
 
 --
@@ -44,7 +44,7 @@ CREATE TABLE `activity_log` (
   PRIMARY KEY (`log_id`),
   KEY `fk_activitylog_user` (`user_id`),
   CONSTRAINT `fk_activitylog_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_ID`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=  utf8mb4_unicode_ci ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -56,7 +56,7 @@ LOCK TABLES `activity_log` WRITE;
 INSERT INTO `activity_log` VALUES (1,NULL,'error',NULL,NULL,'Failed login','Invalid credentials for test','::1','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36','2025-04-27 06:38:19'),(2,NULL,'session_start',NULL,NULL,'User logged in',NULL,'::1','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36','2025-04-27 06:41:26');
 /*!40000 ALTER TABLE `activity_log` ENABLE KEYS */;
 UNLOCK TABLES;
-;
+-- SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -67,4 +67,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-13 19:57:55
+-- Dump completed on 2025-06-04 11:28:25

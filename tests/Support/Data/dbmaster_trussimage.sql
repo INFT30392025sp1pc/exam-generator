@@ -14,8 +14,8 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-SET @MYSQLDUMP_TEMP_LOG_BIN = @@SESSION.SQL_LOG_BIN;
-SET @@SESSION.SQL_LOG_BIN= 0;
+-- SET @MYSQLDUMP_TEMP_LOG_BIN = @@SESSION.SQL_LOG_BIN;
+-- SET @@SESSION.SQL_LOG_BIN= 0;
 
 --
 -- GTID state at the beginning of the backup 
@@ -38,7 +38,7 @@ CREATE TABLE `trussimage` (
   PRIMARY KEY (`truss_ID`),
   KEY `fk_trussimage_exam` (`exam_ID`),
   CONSTRAINT `fk_trussimage_exam` FOREIGN KEY (`exam_ID`) REFERENCES `exam` (`exam_ID`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=  utf8mb4_unicode_ci ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -47,10 +47,10 @@ CREATE TABLE `trussimage` (
 
 LOCK TABLES `trussimage` WRITE;
 /*!40000 ALTER TABLE `trussimage` DISABLE KEYS */;
-INSERT INTO `trussimage` VALUES (1,'Roof Truss','uploads/truss/truss_681f61d368ac5_Screenshot from 2025-04-30 02-23-26.png',98),(2,'Second Truss','xx',95),(3,'Civil Truss Master','uploads/truss/truss_681f7a21d3d64_Screenshot from 2025-04-30 02-23-26.png',100);
+INSERT INTO `trussimage` VALUES (1,'Roof Truss','uploads/truss/truss_681f61d368ac5_Screenshot from 2025-04-30 02-23-26.png',98),(2,'Second Truss','xx',95),(3,'Civil Truss Master','uploads/truss/truss_681f7a21d3d64_Screenshot from 2025-04-30 02-23-26.png',100),(4,'Truss Test Image','uploads/truss/truss_68269099cc9cd_truss_imag.png',102),(5,'Test Truss','uploads/truss/truss_68357dc5bc46e_Screenshot from 2025-04-30 02-23-26.png',88),(6,'test','uploads/truss/truss_6835d5103ecbc_images (1).png',103),(7,'test','uploads/truss/truss_6835d5d46adec_images (2).png',103),(8,'AE Exam Truss','uploads/truss/truss_683c3c953ad05_Screenshot from 2025-04-30 02-23-26.png',111);
 /*!40000 ALTER TABLE `trussimage` ENABLE KEYS */;
 UNLOCK TABLES;
-;
+-- SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -61,4 +61,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-13 19:57:58
+-- Dump completed on 2025-06-04 11:28:17

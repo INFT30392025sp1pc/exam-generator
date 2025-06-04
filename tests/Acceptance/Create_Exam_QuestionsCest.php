@@ -29,9 +29,9 @@ final class Create_Exam_QuestionsCest
     public function tryToTestCreateExamQuestionsNormal(AcceptanceTester $I): void
     {
         // Write your tests here. All `public` methods will be executed as tests.
-        $I->fillField('study_period', 'SP3');
-        $I->fillField('exam_name', 'PHP 101');
         $I->see('Please enter details for the exam to be created:');
+        $I->selectOption('study_period', 'SP3');
+        $I->fillField('exam_name', 'PHP 101');
         $I->selectOption('subject_code', 'php101');
         $I->click('Next Step');
         $I->see('Would you like to upload a question file, modify an existing question list, or manually create a new question list?');
@@ -41,7 +41,7 @@ final class Create_Exam_QuestionsCest
     public function tryToTestCreateExamQuestionsMissingInfo(AcceptanceTester $I): void
     {
         // Write your tests here. All `public` methods will be executed as tests.
-        $I->fillField('study_period', 'SP3');
+        $I->selectOption('study_period', 'SP3');
         $I->fillField('exam_name', 'PHP 101');
         $I->see('Please enter details for the exam to be created:');
         $I->click('Next Step');
