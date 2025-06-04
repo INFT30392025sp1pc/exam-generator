@@ -29,9 +29,9 @@ if ($role !== 'Coordinator') {
 }
 
 // Validate required POST data
-$exam_ID = $_POST['exam_ID'] ?? null;
-$question_ID = $_POST['question_ID'] ?? null;
-$students = $_POST['students'] ?? [];
+$exam_ID = $_SESSION['exam_data']['exam_ID'];
+$question_ID = $_SESSION['exam_data']['question_ID'];
+$students = $_SESSION['exam_data']['students'];
 
 if (!$exam_ID || !$question_ID || empty($students)) {
     $_SESSION['error'] = "Invalid data submitted.";
