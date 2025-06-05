@@ -7,7 +7,7 @@ namespace Tests\Acceptance;
 
 use Tests\Support\AcceptanceTester;
 
-final class Create_Exam_QuestionsCest
+final class Upload_QuestionsCest
 {
     public function _before(AcceptanceTester $I): void
     {
@@ -24,30 +24,31 @@ final class Create_Exam_QuestionsCest
         $I->see('Coordinator Actions');
         $I->amOnPage('/dashboard.php');
         $I->click("Create Exam Questions");
-    }
-
-    public function tryToTestCreateExamQuestionsNormal(AcceptanceTester $I): void
-    {
-        // Write your tests here. All `public` methods will be executed as tests.
         $I->see('Please enter details for the exam to be created:');
         $I->selectOption('study_period', 'SP3');
         $I->fillField('exam_name', 'PHP 101');
-        $I->selectOption('subject_code', 'php101');
+        $I->selectOption('subject_code', 'AEUO');
         $I->click('Next Step');
         $I->see('Would you like to upload a question file, modify an existing question list, or manually create a new question list?');
+        $I->click('Upload');
 
     }
 
-    public function tryToTestCreateExamQuestionsMissingInfo(AcceptanceTester $I): void
+    public function tryToTestNormal(AcceptanceTester $I): void
     {
         // Write your tests here. All `public` methods will be executed as tests.
-        $I->selectOption('study_period', 'SP3');
-        $I->fillField('exam_name', 'PHP 101');
-        $I->see('Please enter details for the exam to be created:');
-        $I->click('Next Step');
-        $I->amOnPage('/create_exam_questions.php');
+        $I->attachFile('Select CSV File', 'test exam questions.csv');
+        $I->click('Upload Questions');
+        $I->see('Successfully added 3 questions.');
 
     }
 
+
+    public function tryToTestNoFileGiven(AcceptanceTester $I): void
+    {
+        $I->amOnPage('/upload_question_file.php');
+        $I->click('Upload Questions');
+        $I->see('The file is empty.');
+    }
 
 }
