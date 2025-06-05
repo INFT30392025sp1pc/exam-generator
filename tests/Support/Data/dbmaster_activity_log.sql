@@ -16,11 +16,11 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 -- SET @MYSQLDUMP_TEMP_LOG_BIN = @@SESSION.SQL_LOG_BIN;
 -- SET @@SESSION.SQL_LOG_BIN= 0;
+
 --
--- --
--- -- GTID state at the beginning of the backup
--- --
+-- GTID state at the beginning of the backup 
 --
+
 -- SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '';
 
 --
@@ -44,7 +44,7 @@ CREATE TABLE `activity_log` (
   PRIMARY KEY (`log_id`),
   KEY `fk_activitylog_user` (`user_id`),
   CONSTRAINT `fk_activitylog_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_ID`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=  utf8mb4_unicode_ci ;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -67,4 +67,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-04 11:28:25
+-- Dump completed on 2025-06-06  0:01:24

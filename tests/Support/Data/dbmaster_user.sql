@@ -38,7 +38,7 @@ CREATE TABLE `user` (
   `user_email` varchar(100) DEFAULT NULL,
   `user_role` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`user_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=  utf8mb4_unicode_ci ;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -47,7 +47,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (2,'5701e1fc38a45821bc7687a3d8530720','John','March','john.march@gmail.com','Administrator'),(9,'098f6bcd4621d373cade4e832627b4f6','test','name','test.test@gmail.com','Coordinator'),(10,'098f6bcd4621d373cade4e832627b4f6','Alice','Smith','alice.smith@gmail.com','Coordinator'),(11,'098f6bcd4621d373cade4e832627b4f6','Alice','Super','alice.super@gmail.com','Coordinator'),(12,'098f6bcd4621d373cade4e832627b4f6','John','Smith','John.Smith@gmail.com','Coordinator'),(22,'25d55ad283aa400af464c76d713c07ad','Will','Smith','test@gamil.com','Administrator'),(23,'25d55ad283aa400af464c76d713c07ad','John','Smith','test_coordinator@gmail.com','Coordinator'),(25,'ee8f507381220f616d153c7eeac7fe88','Disabled','Test','test1@example.com','Test'),(26,'25f9e794323b453885f5181f1b624d0b','Lisa','Donaldson','lisee321@hotmail.co.uk','Coordinator'),(27,'ee8f507381220f616d153c7eeac7fe88','Lisa','Pietsch','donly03f@mymail.unisa.edu.au','Coordinator'),(28,'0de08c9e0130aee7ba17b97d675ad003','Sisi','Liu','sisi.liu@unisa.edu.au','administrator'),(29,'e83af3f9bd8bc4a413971c41a5261796','Danda','Li','danda.li@unisa.edu.au','Administrator'),(30,'e83af3f9bd8bc4a413971c41a5261796','Danda','Li','danda.li@unisa.edu.au','Administrator'),(31,'sisi.liu_coordinator@unisa.edu.a','Sisi','Liu','sisi.liu_coordinator@unisa.edu.au','Coordinator'),(32,'2da74108a58e0a67f037d4de49c0beb8','Sisi','Liu','sisi.liu_coordinator@unisa.edu.au','Coordinator'),(33,'dc95d51d233899656a12a0ea3c694f2a','Danda','Li','danda.li_coordinator@unisa.edu.au','Coordinator'), (34, md5('123'), 'John', 'Smith', 'test.admin@gmail.com', 'Administrator'), (35, md5('123'), 'John', 'Smith', 'test.coordinator@gmail.com', 'Coordinator');
+INSERT INTO `user` VALUES (2,md5('123'),'John','March','test.admin@gmail.com','Administrator'),(9,md5('123'),'test','name','test.coordinator@gmail.com','Coordinator'),(10,'098f6bcd4621d373cade4e832627b4f6','Alice','Smith','alice.smith@gmail.com','Coordinator'),(11,'098f6bcd4621d373cade4e832627b4f6','Alice','Super','alice.super@gmail.com','Coordinator'),(12,'098f6bcd4621d373cade4e832627b4f6','John','Smith','John.Smith@gmail.com','Coordinator'),(22,'25d55ad283aa400af464c76d713c07ad','Will','Smith','test@gamil.com','Administrator'),(23,'25d55ad283aa400af464c76d713c07ad','John','Smith','test_coordinator@gmail.com','Coordinator'),(25,'ee8f507381220f616d153c7eeac7fe88','Disabled','Test','test1@example.com','Test'),(26,'25f9e794323b453885f5181f1b624d0b','Lisa','Donaldson','lisee321@hotmail.co.uk','Coordinator'),(27,'ee8f507381220f616d153c7eeac7fe88','Lisa','Pietsch','donly03f@mymail.unisa.edu.au','Coordinator'),(28,'0de08c9e0130aee7ba17b97d675ad003','Sisi','Liu','sisi.liu@unisa.edu.au','administrator'),(29,'e83af3f9bd8bc4a413971c41a5261796','Danda','Li','danda.li@unisa.edu.au','Administrator'),(30,'e83af3f9bd8bc4a413971c41a5261796','Danda','Li','danda.li@unisa.edu.au','Administrator'),(31,'sisi.liu_coordinator@unisa.edu.a','Sisi','Liu','sisi.liu_coordinator@unisa.edu.au','Coordinator'),(32,'2da74108a58e0a67f037d4de49c0beb8','Sisi','Liu','sisi.liu_coordinator@unisa.edu.au','Coordinator'),(33,'dc95d51d233899656a12a0ea3c694f2a','Danda','Li','danda.li_coordinator@unisa.edu.au','Coordinator');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 -- SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
@@ -61,4 +61,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-04 11:28:39
+-- Dump completed on 2025-06-06  0:00:57

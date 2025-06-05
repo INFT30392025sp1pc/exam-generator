@@ -37,7 +37,7 @@ CREATE TABLE `user_role_map` (
   KEY `role_id` (`role_id`),
   CONSTRAINT `user_role_map_ibfk_1` FOREIGN KEY (`user_ID`) REFERENCES `user` (`user_ID`) ON DELETE CASCADE,
   CONSTRAINT `user_role_map_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `role` (`role_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=  utf8mb4_unicode_ci ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -46,7 +46,7 @@ CREATE TABLE `user_role_map` (
 
 LOCK TABLES `user_role_map` WRITE;
 /*!40000 ALTER TABLE `user_role_map` DISABLE KEYS */;
-INSERT INTO `user_role_map` VALUES (2,1),(11,1),(22,1),(23,1),(28,1),(29,1),(30,1),(9,2),(10,2),(11,2),(23,2),(31,2),(32,2),(33,2),(25,3), (34,1), (35, 2);
+INSERT INTO `user_role_map` VALUES (2,1),(11,1),(22,1),(23,1),(28,1),(29,1),(30,1),(9,2),(10,2),(11,2),(23,2),(31,2),(32,2),(33,2),(25,3);
 /*!40000 ALTER TABLE `user_role_map` ENABLE KEYS */;
 UNLOCK TABLES;
 -- SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
@@ -60,4 +60,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-04 11:28:42
+-- Dump completed on 2025-06-06  0:01:27

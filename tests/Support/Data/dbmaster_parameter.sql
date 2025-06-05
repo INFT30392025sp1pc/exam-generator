@@ -46,7 +46,7 @@ CREATE TABLE `parameter` (
   CONSTRAINT `fk_parameter_student` FOREIGN KEY (`student_ID`) REFERENCES `student` (`student_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_parameter_trussimage` FOREIGN KEY (`truss_ID`) REFERENCES `trussimage` (`truss_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `parameter_ibfk_1` FOREIGN KEY (`question_ID`) REFERENCES `question` (`question_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=  utf8mb4_unicode_ci ;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -55,7 +55,7 @@ CREATE TABLE `parameter` (
 
 LOCK TABLES `parameter` WRITE;
 /*!40000 ALTER TABLE `parameter` DISABLE KEYS */;
-INSERT INTO `parameter` VALUES (8,'Total Span of Truss (m)',6.00,12.00,NULL,3,NULL,100),(9,'Point Load at Node B (kN)',5.00,20.00,NULL,3,NULL,100),(10,'Yield Strength of Steel (MPa)',250.00,450.00,NULL,3,NULL,100),(11,'Cross-sectional Area (mm2)',200.00,800.00,NULL,3,NULL,100),(12,'Support Reaction at A (kN)',0.00,30.00,NULL,3,NULL,100),(13,'P1',1.00,3.00,NULL,4,NULL,102),(14,'P2',2.00,4.00,NULL,4,NULL,102),(15,'P1',10.00,100.00,NULL,3,NULL,100),(16,'LoadAtJointC_N',800.00,1200.00,NULL,8,NULL,111),(17,'LoadAtJointF_N',1000.00,1500.00,NULL,8,NULL,111),(18,'UniformLoadAtJointC_N',500.00,1000.00,NULL,8,NULL,111),(19,'PointLoadAtTopCenterJoint_N',1000.00,2000.00,NULL,8,NULL,111),(20,'TrussSpan_m',4.00,10.00,NULL,8,NULL,111),(21,'CompressiveForce_kN',10.00,25.00,NULL,8,NULL,111),(22,'YieldStrength_MPa',230.00,300.00,NULL,8,NULL,111),(23,'FactorOfSafety',1.20,2.40,NULL,8,NULL,111),(25,'A',15.20,60.80,NULL,8,NULL,111),(26,'B',10.00,50.00,NULL,8,NULL,111);
+INSERT INTO `parameter` VALUES (8,'Total Span of Truss (m)',6.00,12.00,NULL,3,NULL,100),(9,'Point Load at Node B (kN)',5.00,20.00,NULL,3,NULL,100),(10,'Yield Strength of Steel (MPa)',250.00,450.00,NULL,3,NULL,100),(11,'Cross-sectional Area (mm2)',200.00,800.00,NULL,3,NULL,100),(12,'Support Reaction at A (kN)',0.00,30.00,NULL,3,NULL,100),(13,'P1',1.00,3.00,NULL,4,NULL,102),(14,'P2',2.00,4.00,NULL,4,NULL,102),(15,'P1',10.00,100.00,NULL,3,NULL,100),(16,'LoadAtJointC_N',800.00,1200.00,NULL,8,NULL,111),(17,'LoadAtJointF_N',1000.00,1500.00,NULL,8,NULL,111),(18,'UniformLoadAtJointC_N',500.00,1000.00,NULL,8,NULL,111),(19,'PointLoadAtTopCenterJoint_N',1000.00,2000.00,NULL,8,NULL,111),(20,'TrussSpan_m',4.00,10.00,NULL,8,NULL,111),(21,'CompressiveForce_kN',10.00,25.00,NULL,8,NULL,111),(22,'YieldStrength_MPa',230.00,300.00,NULL,8,NULL,111),(23,'FactorOfSafety',1.20,2.40,NULL,8,NULL,111),(25,'A',15.20,60.80,NULL,8,NULL,111),(26,'B',10.00,50.00,NULL,8,NULL,111),(27,'1',10.00,100.00,NULL,9,NULL,118);
 /*!40000 ALTER TABLE `parameter` ENABLE KEYS */;
 UNLOCK TABLES;
 -- SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
@@ -69,4 +69,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-04 11:28:32
+-- Dump completed on 2025-06-06  0:01:33
