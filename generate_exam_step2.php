@@ -123,11 +123,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['student_csv']) && $_
 
 // Merge with CSV students if available
 if (isset($_SESSION['csv_students'])) {
-    $existingIds = array_column($students, 'student_ID');
+    $existingIds = array_column($students, 'username');
     foreach ($_SESSION['csv_students'] as $csvStudent) {
-        if (!in_array($csvStudent['student_ID'], $existingIds)) {
+        if (!in_array($csvStudent['username'], $existingIds)) {
             $students[] = $csvStudent;
-            $existingIds[] = $csvStudent['student_ID'];
+            $existingIds[] = $csvStudent['username'];
         }
     }
 }
