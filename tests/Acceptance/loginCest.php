@@ -105,4 +105,33 @@ final class loginCest
         $I->amOnPage('/forgot_password.php');
     }
 
+    public function testURLInjection(AcceptanceTester $I)
+    {
+        // Test SQL injection via URL
+        $I->amOnPage('/login?username=admin%27+OR+%271%27%3D%271&password=anypassword');
+        $I->dontSee('Welcome'); // Should not log in
+
+        // Test XSS via URL
+        $I->amOnPage('/login?username=<script>alert(1)</script>');
+        $I->dontSeeElement('script'); // Should not render script tags
+
+        // Test path traversal (this is Linux specific)
+        $I->amOnPage('/login?redirect=../../etc/passwd');
+        $I->dontSee('root:x:0:0'); // Should not expose system files
+    }
+
+    public function testOpenRedirect(AcceptanceTester $I)
+    {
+        $I->amOnPage('/login.php?redirect=https://evil.com');
+        $I->dontSeeCurrentUrlEquals('https://evil.com'); // Should not redirect to external site
+    }
+
+    public function testParameterPollution(AcceptanceTester $I)
+    {
+        $I->amOnPage('/login.php?user=admin&user=attacker');
+        $I->fillField('password', 'wrongpass');
+        $I->click('Login');
+        $I->dontSee('Welcome, attacker'); // Should not allow multiple users
+    }
+
 }
