@@ -215,7 +215,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_students'])) {
                         <div class="mb-3">
                             <label for="student_csv" class="form-label">CSV Format:</label>
                             <div class="alert alert-info p-2 mb-2 small">
-                                student_ID,first_name,last_name,student_email
+                                username,first_name,last_name,student_email
                             </div>
                             <input class="form-control form-control-sm" type="file" id="student_csv" name="student_csv"
                                 accept=".csv">
