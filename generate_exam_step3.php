@@ -43,6 +43,7 @@ if (!$exam_ID || !$question_ID || empty($students)) {
 $submittedStudentIDs = [];
 
 foreach ($students as $student) {
+    $susername = trim($student['username']);
     $first = trim($student['first_name']);
     $last = trim($student['last_name']);
     $email = trim($student['student_email']);
@@ -57,14 +58,14 @@ foreach ($students as $student) {
         $row = $result->fetch_assoc();
         $student_ID = $row['student_ID'];
 
-        // Optional: update name
-        $update = $conn->prepare("UPDATE student SET first_name = ?, last_name = ? WHERE student_ID = ?");
-        $update->bind_param("ssi", $first, $last, $student_ID);
+        // Update name and username
+        $update = $conn->prepare("UPDATE student SET first_name = ?, last_name = ?, username = ? WHERE student_ID = ?");
+        $update->bind_param("sssi", $first, $last, $susername, $student_ID);
         $update->execute();
     } else {
         // 2. Insert new student
-        $insert = $conn->prepare("INSERT INTO student (first_name, last_name, student_email) VALUES (?, ?, ?)");
-        $insert->bind_param("sss", $first, $last, $email);
+        $insert = $conn->prepare("INSERT INTO student (username, first_name, last_name, student_email) VALUES (?, ?, ?, ?)");
+        $insert->bind_param("ssss", $susername, $first, $last, $email);
         $insert->execute();
         $student_ID = $insert->insert_id;
     }
@@ -73,7 +74,7 @@ foreach ($students as $student) {
     $submittedStudentIDs[] = $student_ID;
 
     // 3. Link student to exam if not already linked
-    $check_link = $conn->prepare("SELECT * FROM exam_user WHERE exam_ID = ? AND user_ID = ?");
+    $check_link = $conn->prepare("SELECT 1 FROM exam_user WHERE exam_ID = ? AND user_ID = ?");
     $check_link->bind_param("ii", $exam_ID, $student_ID);
     $check_link->execute();
     $check_result = $check_link->get_result();

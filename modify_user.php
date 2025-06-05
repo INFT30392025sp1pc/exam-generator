@@ -149,7 +149,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="card p-4 shadow-lg login-card text-white">
             <div class="text-left">
                 <a href="users.php">
-                    <u>Back</u>
+                    <u>Back</u></a>
             </div>
             <div class="text-center">
                 <a href="dashboard.php"><img src="assets/img/logo_unisaonline.png" alt="Logo" class="mb-3"

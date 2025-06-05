@@ -45,42 +45,54 @@ $count_stmt->execute();
 $count_result = $count_stmt->get_result()->fetch_row();
 $pending_count = $count_result[0] ?? 0;
 
-
-// Ensure PDF folder exists
-$pdf_dir = 'generated_pdfs/';
-if (!is_dir($pdf_dir)) {
-    mkdir($pdf_dir, 0777, true);
-}
-
 $generated_files = [];
-
-// Exam Summary
-$csv_dir = 'generated_pdfs/';
-$csv_path = $csv_dir . 'exam_summary.csv';
-
-// Ensure directory exists
-if (!is_dir($csv_dir)) {
-    mkdir($csv_dir, 0777, true);
-}
-
-// Open file
-$csvFile = fopen($csv_path, 'w');
-if (!$csvFile) {
-    die("Failed to open CSV file for writing at: $csv_path");
-}
-
-// Write header row
-fputcsv($csvFile, ['Student Name', 'Email', 'Question Number', 'Question Content', 'Parameter', 'Value']);
-
 
 // Handle PDF generation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
+    // Create a timestamped folder for this batch
+    $timestamp = date('Ymd_His');
+    $batch_dir = "generated_pdfs/batch_$timestamp/";
+    if (!is_dir($batch_dir)) {
+        mkdir($batch_dir, 0777, true);
+    }
+
+    // Set the directory for PDF files
+    $pdf_dir = $batch_dir;
+
+    // Create a CSV file for exam summary
+    $csv_dir = 'generated_pdfs/';
+    $csv_path = $batch_dir . 'exam_summary.csv';
+
+    // Ensure directory exists
+    if (!is_dir($csv_dir)) {
+        mkdir($csv_dir, 0777, true);
+    }
+
+    // Open file
+    $csvFile = fopen($csv_path, 'w');
+    if (!$csvFile) {
+        die("Failed to open CSV file for writing at: $csv_path");
+    }
+
+    // Write exam metadata once at top of CSV
+    $exam_meta_stmt = $conn->prepare("SELECT exam_name, subject_code, exam_sp FROM exam WHERE exam_ID = ?");
+    $exam_meta_stmt->bind_param("i", $exam_ID);
+    $exam_meta_stmt->execute();
+    $exam_meta = $exam_meta_stmt->get_result()->fetch_assoc();
+
+    fputcsv($csvFile, []);
+    fputcsv($csvFile, ['Exam Name', $exam_meta['exam_name'] ?? '']);
+    fputcsv($csvFile, ['Subject Code', $exam_meta['subject_code'] ?? '']);
+    fputcsv($csvFile, ['Study Period', $exam_meta['exam_sp'] ?? '']);
+    fputcsv($csvFile, ['Generated At', $timestamp]);
+    fputcsv($csvFile, []); // Blank row to separate metadata from actual data
+
     // Clear previous files
     array_map('unlink', glob($pdf_dir . '*.pdf'));
 
     // Fetch students linked to exams (include exam_ID!)
     $stmt3 = $conn->prepare("
-    SELECT s.student_ID, s.first_name, s.last_name, s.student_email, eu.exam_ID
+    SELECT s.student_ID, s.username, s.first_name, s.last_name, s.student_email, eu.exam_ID
     FROM student s
     JOIN exam_user eu ON s.student_ID = eu.user_ID
     WHERE eu.exam_ID = ?
@@ -93,7 +105,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
         $name = "{$row['first_name']} {$row['last_name']}";
         $sanitizedFirst = preg_replace('/[^a-zA-Z0-9]/', '', $row['first_name']);
         $sanitizedLast = preg_replace('/[^a-zA-Z0-9]/', '', $row['last_name']);
-        $filename = $pdf_dir . "{$row['student_ID']}_{$sanitizedFirst}_{$sanitizedLast}_exam.pdf";
+        $username = preg_replace('/[^a-zA-Z0-9]/', '', $row['username']);
+        $filename = $pdf_dir . "{$username}_{$sanitizedFirst}_{$sanitizedLast}_exam.pdf";
 
 
         $pdf = new Fpdi();
@@ -124,6 +137,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
         $studentName = "{$row['first_name']} {$row['last_name']}";
         $email = $row['student_email'];
 
+        $questions = [];
+        $parameters = [];
+
         while ($question = $questionResult->fetch_assoc()) {
             // Write Question Header
             $pdf->SetFont('Arial', 'B', 12);
@@ -134,9 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
             $pdf->MultiCell(0, 8, $question['contents']);
             $pdf->Ln(5); // Space between questions
 
-            // Exam Summary
-            fputcsv($csvFile, [$studentName, $email, "Question {$questionNumber}", $question['contents'], '', '']);
-
+            $questions[] = $question['contents'];
             $questionNumber++;
         }
 
@@ -155,6 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
 
         $pdf->SetFont('Arial', '', 10);
         while ($param = $param_result->fetch_assoc()) {
+
             $lower = $param['parameter_lower'];
             $upper = $param['parameter_upper'];
 
@@ -172,12 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
             $pdf->Cell(60, 10, $formattedValue, 1);
             $pdf->Ln();
 
-            fputcsv($csvFile, [$studentName, $email, '', '', $param['parameter_name'], $formattedValue]);
-
-            $pdf->Ln();
-
-            // Exam Summary
-            fputcsv($csvFile, [$studentName, $email, '', '', $param['parameter_name'], $value]);
+            $parameters[$param['parameter_name']] = $formattedValue;
         }
 
         $pdf->Ln(10);
@@ -194,14 +204,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
             $pdf->Ln(10);
         }
 
+        // CSV flattening: One row per student
+        $csvRow = [
+            $studentName,
+            $email
+        ];
+
+        // Add each question
+        foreach ($questions as $q) {
+            $csvRow[] = $q;
+        }
+
+        // Add each parameter
+        foreach ($parameters as $paramName => $paramValue) {
+            $csvRow[] = $paramName;
+            $csvRow[] = $paramValue;
+        }
+
+        // Write to CSV
+        fputcsv($csvFile, $csvRow);
+
+        $_SESSION['generated_files'] = $generated_files;
+
         $pdf->Output('F', $filename);
+
         $_SESSION['success'] = "Exam papers generated successfully. Note: To save files to a specific location, right-click the download button and select 'Save link as...'";
         $generated_files[] = $filename;
     }
-
-    $_SESSION['generated_files'] = $generated_files;
-
-    // Exam Summary
     fclose($csvFile);
 }
 ?>
