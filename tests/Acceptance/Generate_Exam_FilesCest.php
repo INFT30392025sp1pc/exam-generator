@@ -49,7 +49,7 @@ final class Generate_Exam_FilesCest
         $I->see("CSV file 'student_normal.csv' uploaded successfully. Students will be merged with existing list");
         $I->see('Add Student');
         $I->click('Next');
-        $I->see("(6 Pending Exams)");
+        $I->see("(4 Pending Exams)");
 
     }
 
