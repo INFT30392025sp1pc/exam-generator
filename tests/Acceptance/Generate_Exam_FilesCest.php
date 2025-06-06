@@ -33,41 +33,42 @@ final class Generate_Exam_FilesCest
         // Write your tests here. All `public` methods will be executed as tests.
         $I->selectOption('question_ID', '309');
         $I->click('Next');
-        $I->attachFile('student_csv', 'student.csv');
+        $I->attachFile('student_csv', 'student_normal.csv');
         $I->click('Upload CSV');
-        $I->see("CSV file 'student.csv' uploaded successfully. Students will be merged with existing list");
+        $I->see("CSV file 'student_normal.csv' uploaded successfully. Students will be merged with existing list");
         $I->see('Add Student');
     }
 
-    public function tryToTestNumberOfExamGenerated(AcceptanceTester $I): void
+    public function tryToTestNormalNumberOfExamGenerated(AcceptanceTester $I): void
     {
         // Write your tests here. All `public` methods will be executed as tests.
         $I->selectOption('question_ID', '309');
         $I->click('Next');
-        $I->attachFile('student_csv', 'student.csv');
+        $I->attachFile('student_csv', 'student_normal.csv');
         $I->click('Upload CSV');
-        $I->see("CSV file 'student.csv' uploaded successfully. Students will be merged with existing list");
+        $I->see("CSV file 'student_normal.csv' uploaded successfully. Students will be merged with existing list");
         $I->see('Add Student');
         $I->click('Next');
-        $I->see("(156 Pending Exams)");
+        $I->see("(6 Pending Exams)");
 
     }
 
-    public function tryToTestGeneratePDF(AcceptanceTester $I): void
+    public function tryToTestMAXGeneratePDF(AcceptanceTester $I): void
     {
         // Write your tests here. All `public` methods will be executed as tests.
         $I->selectOption('question_ID', '309');
         $I->click('Next');
-        $I->attachFile('student_csv', 'student.csv');
+        $I->attachFile('student_csv', 'student_MAX.csv');
         $I->click('Upload CSV');
-        $I->see("CSV file 'student.csv' uploaded successfully. Students will be merged with existing list");
+        $I->see("CSV file 'student_MAX.csv' uploaded successfully. Students will be merged with existing list");
         $I->see('Add Student');
         $I->click('Next');
-        $I->see("(156 Pending Exams)");
+        $I->see("(249 Pending Exams)");
         $I->click('Generate (Create PDFs)');
         $I->see("CSV Summary Available:");
         $I->see("Download");
         $I->click('Download');
 
     }
+
 }
