@@ -252,6 +252,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
 
             <?php include('partials/alerts.php'); ?>
             <?php unset($_SESSION['success']); ?>
+            <?php if (!empty($_SESSION['skipped_students'])): ?>
+                <div class="alert alert-warning text-start mb-3">
+                    <h6><i class="bi bi-exclamation-triangle me-2"></i>The following is skipped</h6>
+                    <div class="small">
+                        <table class="table table-sm table-borderless mb-0">
+                            <?php foreach ($_SESSION['skipped_students'] as $student): ?>
+                                <tr>
+                                    <td class="p-1"><?= htmlspecialchars($student['email']) ?></td>
+                                    <td class="p-1">(<?= htmlspecialchars($student['username']) ?>)</td>
+                                    <td class="p-1 text-danger"><?= htmlspecialchars($student['reason']) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </table>
+                    </div>
+                </div>
+                <?php unset($_SESSION['skipped_students']); ?>
+            <?php endif; ?>
 
             <?php if (empty($_SESSION['generated_files'])): ?>
                 <p class="text-white-50">(<?php echo $pending_count; ?> Pending Exams)</p>

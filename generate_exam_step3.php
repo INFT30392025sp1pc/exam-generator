@@ -39,8 +39,9 @@ if (!$exam_ID || !$question_ID || empty($students)) {
     exit();
 }
 
-// Track submitted student IDs
+// Track submitted student IDs and skipped students
 $submittedStudentIDs = [];
+$skippedStudents = [];
 
 foreach ($students as $student) {
     $susername = trim($student['username']);
@@ -48,7 +49,27 @@ foreach ($students as $student) {
     $last = trim($student['last_name']);
     $email = trim($student['student_email']);
 
-    // 1. Check if student already exists
+    // 1. Check if username already exists for another student
+    $checkUsernameStmt = $conn->prepare("SELECT student_ID, student_email FROM student WHERE username = ?");
+    $checkUsernameStmt->bind_param("s", $susername);
+    $checkUsernameStmt->execute();
+    $usernameResult = $checkUsernameStmt->get_result();
+
+    if ($usernameResult->num_rows > 0) {
+        $existingStudent = $usernameResult->fetch_assoc();
+        if ($existingStudent['student_email'] !== $email) {
+            // Username exists for a different student (different email)
+            $skippedStudents[] = [
+                'email' => $email,
+                'username' => $susername,
+                'reason' => "Username '$susername' already exists for another student"
+            ];
+            continue; // Skip this student
+        }
+        // If we get here, it's the same student (same email)
+    }
+
+    // 2. Check if student exists by email
     $stmt = $conn->prepare("SELECT student_ID FROM student WHERE student_email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -63,7 +84,7 @@ foreach ($students as $student) {
         $update->bind_param("sssi", $first, $last, $susername, $student_ID);
         $update->execute();
     } else {
-        // 2. Insert new student
+        // Insert new student
         $insert = $conn->prepare("INSERT INTO student (username, first_name, last_name, student_email) VALUES (?, ?, ?, ?)");
         $insert->bind_param("ssss", $susername, $first, $last, $email);
         $insert->execute();
@@ -107,6 +128,10 @@ if (!empty($studentsToRemove)) {
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('i' . $types, $exam_ID, ...$studentsToRemove);
     $stmt->execute();
+}
+// Store skipped students in session for display
+if (!empty($skippedStudents)) {
+    $_SESSION['skipped_students'] = $skippedStudents;
 }
 
 // Redirect to step 4
