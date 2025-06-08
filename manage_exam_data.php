@@ -1,7 +1,7 @@
 <?php
 
 require_once 'functions.php';
-enableDebug(true);
+enableDebug(false);
 
 session_start();
 include('db.php');
