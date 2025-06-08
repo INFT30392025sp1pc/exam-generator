@@ -303,7 +303,7 @@ class Fpdi extends \TCPDF
         // ensure we have a default value - otherwise TCPDF will set it to 4 throughout
         $lastAnnotationOpt['f'] = 0;
 
-        // values in this dictonary are all direct objects and we don't need to resolve them here again.
+        // values in this dictionary are all direct objects and we don't need to resolve them here again.
         $values = $externalLink['pdfObject']->value;
 
         foreach ($values as $key => $value) {
